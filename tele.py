@@ -2,7 +2,17 @@ from telethon import TelegramClient, events
 from telethon.tl.functions.messages import SendVoteRequest
 from telethon.tl.types import MessageMediaPoll
 from time import sleep
+import os
 
+API_ID = os.environ.get('API_ID')
+API_HASH = os.environ.get('API_HASH')
+PHONE_NUMBER = os.environ.get('PHONE_NUMBER')
+
+
+geos_id = os.environ.get('GEOS_ID')
+penis_penis_id = os.environ.get('PENIS_PENIS_ID')
+badm_id = os.environ.get('BADM_ID')
+sglipa_id = os.environ.get('SGLIPA_ID')
 
 
 client = TelegramClient('penis', API_ID, API_HASH)

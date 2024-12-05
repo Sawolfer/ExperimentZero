@@ -3,59 +3,49 @@ from telethon.tl.functions.messages import SendVoteRequest
 from telethon.tl.types import MessageMediaPoll
 from time import sleep
 import os
+from dotenv import load_dotenv, dotenv_values
+
+load_dotenv() 
 
 API_ID = os.environ.get('API_ID')
 API_HASH = os.environ.get('API_HASH')
 PHONE_NUMBER = os.environ.get('PHONE_NUMBER')
 
 
-geos_id = os.environ.get('GEOS_ID')
-penis_penis_id = os.environ.get('PENIS_PENIS_ID')
-badm_id = os.environ.get('BADM_ID')
-sglipa_id = os.environ.get('SGLIPA_ID')
+geos_id = int(os.environ.get('GEOS_ID'))
+penis_penis_id = int(os.environ.get('PENIS_PENIS_ID'))
+badm_id = int(os.environ.get('BADM_ID'))
+sglipa_id = int(os.environ.get('SGLIPA_ID'))
 
 
 client = TelegramClient('penis', API_ID, API_HASH)
+
+print(geos_id)
+print(penis_penis_id)
+print(badm_id)
+print(sglipa_id)
 
 async def main():
     print("Connecting to Telegram...")
     await client.start(PHONE_NUMBER)
     print("Connected!")
-    
-    # print("Fetching the last 5 messages...")
-    messages = await client.get_messages(geos_id, limit=5000)
-    for i, message in enumerate(messages, start=1):
-        print(f"Message {i}: {message.text or message}")
-        try:
-            await client.send_message(penis_penis_id, message)
-            print("Message forwarded successfully!")
-        except Exception as e:
-            print(f"Failed to forward message: {e}")
-        sleep(0.1)
-        # if isinstance(message.media, MessageMediaPoll):
-        #     poll = message.media.poll
-        #     print(f"Poll received: {poll.question}")
-        #     print(f'Options: {poll.answers}')
-        #     if poll.answers:
-        #         selected_option = poll.answers[0].option
-        #         try:
-        #             print(f"Voting for option: {poll.answers[0].text}")
-        #             await client(SendVoteRequest(
-        #                 peer=group_id,
-        #                 msg_id=message.id,
-        #                 options=[selected_option]
-        #             ))
-        #             print("Vote cast successfully!")
-        #         except Exception as e:
-        #             print(f"Failed to vote: {e}")
-        #         print(f"Voted for option: {poll.answers[0].text}")
-        # print(f"Message {i}: {message.text or message}")
-    print("Messages fetched successfully!")
 
 async def get_dialogs():
     dialogs = await client.get_dialogs()
     for dialog in dialogs:
         print(dialog.name, dialog.id)
+
+async def sync(from_id, to_id, limit):
+    messages = await client.get_messages(from_id, limit=limit)
+    for i, message in enumerate(messages, start=1):
+        print(f"Message {i}: {message.text or message}")
+        try:
+            await client.send_message(to_id, message)
+            print("Message forwarded successfully!")
+        except Exception as e:
+            print(f"Failed to forward message: {e}")
+        sleep(0.1)
+    print("Messages fetched successfully!")
 
 @client.on(events.NewMessage(chats=badm_id))
 async def handle_group_messages(event):

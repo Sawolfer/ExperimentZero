@@ -1,0 +1,104 @@
+from telethon import TelegramClient, events
+from telethon.tl.functions.messages import SendVoteRequest
+from telethon.tl.types import MessageMediaPoll
+from time import sleep
+
+
+
+client = TelegramClient('penis', API_ID, API_HASH)
+
+async def main():
+    print("Connecting to Telegram...")
+    await client.start(PHONE_NUMBER)
+    print("Connected!")
+    
+    # print("Fetching the last 5 messages...")
+    messages = await client.get_messages(geos_id, limit=5000)
+    for i, message in enumerate(messages, start=1):
+        print(f"Message {i}: {message.text or message}")
+        try:
+            await client.send_message(penis_penis_id, message)
+            print("Message forwarded successfully!")
+        except Exception as e:
+            print(f"Failed to forward message: {e}")
+        sleep(0.1)
+        # if isinstance(message.media, MessageMediaPoll):
+        #     poll = message.media.poll
+        #     print(f"Poll received: {poll.question}")
+        #     print(f'Options: {poll.answers}')
+        #     if poll.answers:
+        #         selected_option = poll.answers[0].option
+        #         try:
+        #             print(f"Voting for option: {poll.answers[0].text}")
+        #             await client(SendVoteRequest(
+        #                 peer=group_id,
+        #                 msg_id=message.id,
+        #                 options=[selected_option]
+        #             ))
+        #             print("Vote cast successfully!")
+        #         except Exception as e:
+        #             print(f"Failed to vote: {e}")
+        #         print(f"Voted for option: {poll.answers[0].text}")
+        # print(f"Message {i}: {message.text or message}")
+    print("Messages fetched successfully!")
+
+async def get_dialogs():
+    dialogs = await client.get_dialogs()
+    for dialog in dialogs:
+        print(dialog.name, dialog.id)
+
+@client.on(events.NewMessage(chats=badm_id))
+async def handle_group_messages(event):
+    if isinstance(event.message.media, MessageMediaPoll):
+        poll = event.message.media.poll
+        print(f"Poll received: {poll.question}")
+        print(f'Options: {poll.answers}')
+        if poll.answers:
+            selected_option = poll.answers[0].option
+            print(f"Selected option: {poll.answers[0].text}")
+            try:
+                print(f"Voting for option: {poll.answers[0].text}")
+                await client(SendVoteRequest(
+                    peer=badm_id,
+                    msg_id=event.message.id,
+                    options=[selected_option]
+                ))
+                print("Vote cast successfully!")
+            except Exception as e:
+                print(f"Failed to vote: {e}")
+            print(f"Voted for option: {poll.answers[0].text}")
+    else:
+        print(f"New message: {event.message.text or '<Non-text content>'}")
+
+@client.on(events.NewMessage(chats=geos_id))
+async def handle_and_resend_messages(event):
+    message = event.message
+    print(f"Message: {message.text or '<Non-text content>'}")
+    try:
+        await client.send_message(penis_penis_id, message)
+        print("Message forwarded successfully!")
+    except Exception as e:
+        print(f"Failed to forward message: {e}")
+
+# @client.on(events.NewMessage(chats=penis_penis_id))
+# async def handle_message_sglipa(event):
+#     message = event.message
+#     # print("Message from sglipa")
+#     print(message.from_id)
+#     if message.from_id.user_id == sglipa_id:
+#         print("Message from sglipa")
+#         if message.text:
+#             message.text= f'[СГЛЫПА] {message.text}'
+#             print(f"Message: {message.text or '<Non-text content>'}")
+#         try:
+#             await client.send_message(geos_id, message)
+#             print("Message forwarded successfully!")
+#         except Exception as e:
+#             print(f"Failed to forward message: {e}")
+
+
+
+with client:
+    print("Bot is running...")
+    client.loop.run_until_complete(main())
+    client.run_until_disconnected()

@@ -18,7 +18,12 @@ badm_id = int(os.environ.get('BADM_ID'))
 sglipa_id = int(os.environ.get('SGLIPA_ID'))
 
 
-client = TelegramClient('penis', API_ID, API_HASH)
+client = TelegramClient(
+    'session.exp0.v1',
+    API_ID,
+    API_HASH,
+    # device_model="iPhone 5s", 
+    system_version="4.16.30-vxExpZero",)
 
 print(geos_id)
 print(penis_penis_id)
@@ -27,7 +32,8 @@ print(sglipa_id)
 
 async def main():
     print("Connecting to Telegram...")
-    await client.start(PHONE_NUMBER)
+    await client.start()
+    
     print("Connected!")
 
 async def get_dialogs():
@@ -35,9 +41,10 @@ async def get_dialogs():
     for dialog in dialogs:
         print(dialog.name, dialog.id)
 
-async def sync(from_id, to_id, limit):
-    messages = await client.get_messages(from_id, limit=limit)
-    for i, message in enumerate(messages, start=1):
+async def sync(from_id, to_id, start, end):
+    print("Fetching messages...")
+    messages = await client.get_messages(from_id, limit=end)
+    for i, message in enumerate(messages, start=start):
         print(f"Message {i}: {message.text or message}")
         try:
             await client.send_message(to_id, message)
@@ -47,38 +54,38 @@ async def sync(from_id, to_id, limit):
         sleep(0.1)
     print("Messages fetched successfully!")
 
-@client.on(events.NewMessage(chats=badm_id))
-async def handle_group_messages(event):
-    if isinstance(event.message.media, MessageMediaPoll):
-        poll = event.message.media.poll
-        print(f"Poll received: {poll.question}")
-        print(f'Options: {poll.answers}')
-        if poll.answers:
-            selected_option = poll.answers[0].option
-            print(f"Selected option: {poll.answers[0].text}")
-            try:
-                print(f"Voting for option: {poll.answers[0].text}")
-                await client(SendVoteRequest(
-                    peer=badm_id,
-                    msg_id=event.message.id,
-                    options=[selected_option]
-                ))
-                print("Vote cast successfully!")
-            except Exception as e:
-                print(f"Failed to vote: {e}")
-            print(f"Voted for option: {poll.answers[0].text}")
-    else:
-        print(f"New message: {event.message.text or '<Non-text content>'}")
+# @client.on(events.NewMessage(chats=badm_id))
+# async def handle_group_messages(event):
+#     if isinstance(event.message.media, MessageMediaPoll):
+#         poll = event.message.media.poll
+#         print(f"Poll received: {poll.question}")
+#         print(f'Options: {poll.answers}')
+#         if poll.answers:
+#             selected_option = poll.answers[0].option
+#             print(f"Selected option: {poll.answers[0].text}")
+#             try:
+#                 print(f"Voting for option: {poll.answers[0].text}")
+#                 await client(SendVoteRequest(
+#                     peer=badm_id,
+#                     msg_id=event.message.id,
+#                     options=[selected_option]
+#                 ))
+#                 print("Vote cast successfully!")
+#             except Exception as e:
+#                 print(f"Failed to vote: {e}")
+#             print(f"Voted for option: {poll.answers[0].text}")
+#     else:
+#         print(f"New message: {event.message.text or '<Non-text content>'}")
 
-@client.on(events.NewMessage(chats=geos_id))
-async def handle_and_resend_messages(event):
-    message = event.message
-    print(f"Message: {message.text or '<Non-text content>'}")
-    try:
-        await client.send_message(penis_penis_id, message)
-        print("Message forwarded successfully!")
-    except Exception as e:
-        print(f"Failed to forward message: {e}")
+# @client.on(events.NewMessage(chats=geos_id))
+# async def handle_and_resend_messages(event):
+#     message = event.message
+#     print(f"Message: {message.text or '<Non-text content>'}")
+    # try:
+    #     await client.send_message(penis_penis_id, message)
+    #     print("Message forwarded successfully!")
+    # except Exception as e:
+    #     print(f"Failed to forward message: {e}")
 
 # @client.on(events.NewMessage(chats=penis_penis_id))
 # async def handle_message_sglipa(event):

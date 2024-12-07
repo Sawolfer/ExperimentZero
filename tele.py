@@ -83,28 +83,50 @@ async def handle_group_messages(event):
 @client.on(events.NewMessage(chats=geos_id))
 async def handle_and_resend_messages(event):
     message = event.message
+    print(f"in chat of geos: {message.reply_to.reply_to_msg_id}")
     print(f"Message: {message.text or '<Non-text content>'}")
     try:
-        await client.send_message(penis_penis_id, message)
-        print("Message forwarded successfully!")
+        if message.reply_to_msg_id:
+            original_reply_message = await event.get_reply_message()
+            if "[СГЛЫПА]" in original_reply_message.text:
+                await client.send_message(
+                penis_penis_id, 
+                message,  
+                reply_to=original_reply_message.id - 1
+                )
+            else:
+                await client.send_message(
+                    penis_penis_id, 
+                    message,  
+                    reply_to=original_reply_message.id + 1
+                )
+            print("Message forwarded as a reply successfully!")
+        else:
+            await client.send_message(penis_penis_id, message)
+            print("Message forwarded successfully!")
     except Exception as e:
         print(f"Failed to forward message: {e}")
 
 @client.on(events.NewMessage(chats=penis_penis_id))
 async def handle_message_sglipa(event):
     message = event.message
+    print(f"in chat of penis penis: {message.reply_to.reply_to_msg_id}")
     # print("Message from sglipa")
-    print(message.from_id)
-    if message.from_id.user_id == sglipa_id:
-        print("Message from sglipa")
-        if message.text:
-            message.text= f'[СГЛЫПА] {message.text}'
-            print(f"Message: {message.text or '<Non-text content>'}")
-        try:
+    try:
+        if message.reply_to_msg_id:
+            original_reply_message = await event.get_reply_message()
+            
+            await client.send_message(
+                geos_id, 
+                message,  
+                reply_to=original_reply_message.id - 1
+            )
+            print("Message forwarded as a reply successfully!")
+        else:
             await client.send_message(geos_id, message)
             print("Message forwarded successfully!")
-        except Exception as e:
-            print(f"Failed to forward message: {e}")
+    except Exception as e:
+        print(f"Failed to forward message: {e}")
 
 
 

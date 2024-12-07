@@ -112,10 +112,11 @@ async def handle_message_sglipa(event):
     message = event.message
     # print(f"in chat of penis penis: {message.reply_to.reply_to_msg_id}")
     # print("Message from sglipa")
+    if message.text:
+        message.text = f"[СГЛЫПА] {message.text}"
     try:
         if message.reply_to_msg_id:
             original_reply_message = await event.get_reply_message()
-            
             await client.send_message(
                 geos_id, 
                 message,  

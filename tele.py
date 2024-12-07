@@ -83,7 +83,7 @@ async def handle_group_messages(event):
 @client.on(events.NewMessage(chats=geos_id))
 async def handle_and_resend_messages(event):
     message = event.message
-    print(f"in chat of geos: {message.reply_to.reply_to_msg_id}")
+    # print(f"in chat of geos: {message.reply_to.reply_to_msg_id}")
     print(f"Message: {message.text or '<Non-text content>'}")
     try:
         if message.reply_to_msg_id:
@@ -110,7 +110,7 @@ async def handle_and_resend_messages(event):
 @client.on(events.NewMessage(chats=penis_penis_id))
 async def handle_message_sglipa(event):
     message = event.message
-    print(f"in chat of penis penis: {message.reply_to.reply_to_msg_id}")
+    # print(f"in chat of penis penis: {message.reply_to.reply_to_msg_id}")
     # print("Message from sglipa")
     try:
         if message.reply_to_msg_id:

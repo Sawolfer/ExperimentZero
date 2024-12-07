@@ -16,6 +16,7 @@ geos_id = int(os.environ.get('GEOS_ID'))
 penis_penis_id = int(os.environ.get('PENIS_PENIS_ID'))
 badm_id = int(os.environ.get('BADM_ID'))
 sglipa_id = int(os.environ.get('SGLIPA_ID'))
+strugalnya_id = int(os.environ.get('STRUFALNYA'))
 
 
 client = TelegramClient(
@@ -41,6 +42,8 @@ async def get_dialogs():
     for dialog in dialogs:
         print(dialog.name, dialog.id)
 
+
+# Optional: Do not use, cuz it may cause ban in tg
 async def sync(from_id, to_id, start, end):
     print("Fetching messages...")
     messages = await client.get_messages(from_id, limit=end)
@@ -54,33 +57,33 @@ async def sync(from_id, to_id, start, end):
         sleep(0.1)
     print("Messages fetched successfully!")
 
-# @client.on(events.NewMessage(chats=badm_id))
-# async def handle_group_messages(event):
-#     if isinstance(event.message.media, MessageMediaPoll):
-#         poll = event.message.media.poll
-#         print(f"Poll received: {poll.question}")
-#         print(f'Options: {poll.answers}')
-#         if poll.answers:
-#             selected_option = poll.answers[0].option
-#             print(f"Selected option: {poll.answers[0].text}")
-#             try:
-#                 print(f"Voting for option: {poll.answers[0].text}")
-#                 await client(SendVoteRequest(
-#                     peer=badm_id,
-#                     msg_id=event.message.id,
-#                     options=[selected_option]
-#                 ))
-#                 print("Vote cast successfully!")
-#             except Exception as e:
-#                 print(f"Failed to vote: {e}")
-#             print(f"Voted for option: {poll.answers[0].text}")
-#     else:
-#         print(f"New message: {event.message.text or '<Non-text content>'}")
+@client.on(events.NewMessage(chats=badm_id))
+async def handle_group_messages(event):
+    if isinstance(event.message.media, MessageMediaPoll):
+        poll = event.message.media.poll
+        print(f"Poll received: {poll.question}")
+        print(f'Options: {poll.answers}')
+        if poll.answers:
+            selected_option = poll.answers[0].option
+            print(f"Selected option: {poll.answers[0].text}")
+            try:
+                print(f"Voting for option: {poll.answers[0].text}")
+                await client(SendVoteRequest(
+                    peer=badm_id,
+                    msg_id=event.message.id,
+                    options=[selected_option]
+                ))
+                print("Vote cast successfully!")
+            except Exception as e:
+                print(f"Failed to vote: {e}")
+            print(f"Voted for option: {poll.answers[0].text}")
+    else:
+        print(f"New message: {event.message.text or '<Non-text content>'}")
 
-# @client.on(events.NewMessage(chats=geos_id))
-# async def handle_and_resend_messages(event):
-#     message = event.message
-#     print(f"Message: {message.text or '<Non-text content>'}")
+@client.on(events.NewMessage(chats=geos_id))
+async def handle_and_resend_messages(event):
+    message = event.message
+    print(f"Message: {message.text or '<Non-text content>'}")
     # try:
     #     await client.send_message(penis_penis_id, message)
     #     print("Message forwarded successfully!")

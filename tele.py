@@ -57,28 +57,28 @@ async def sync(from_id, to_id, start, end):
         sleep(0.1)
     print("Messages fetched successfully!")
 
-@client.on(events.NewMessage(chats=badm_id))
-async def handle_group_messages(event):
-    if isinstance(event.message.media, MessageMediaPoll):
-        poll = event.message.media.poll
-        print(f"Poll received: {poll.question}")
-        print(f'Options: {poll.answers}')
-        if poll.answers:
-            selected_option = poll.answers[0].option
-            print(f"Selected option: {poll.answers[0].text}")
-            try:
-                print(f"Voting for option: {poll.answers[0].text}")
-                await client(SendVoteRequest(
-                    peer=badm_id,
-                    msg_id=event.message.id,
-                    options=[selected_option]
-                ))
-                print("Vote cast successfully!")
-            except Exception as e:
-                print(f"Failed to vote: {e}")
-            print(f"Voted for option: {poll.answers[0].text}")
-    else:
-        print(f"New message: {event.message.text or '<Non-text content>'}")
+# @client.on(events.NewMessage(chats=badm_id))
+# async def handle_group_messages(event):
+#     if isinstance(event.message.media, MessageMediaPoll):
+#         poll = event.message.media.poll
+#         print(f"Poll received: {poll.question}")
+#         print(f'Options: {poll.answers}')
+#         if poll.answers:
+#             selected_option = poll.answers[0].option
+#             print(f"Selected option: {poll.answers[0].text}")
+#             try:
+#                 print(f"Voting for option: {poll.answers[0].text}")
+#                 await client(SendVoteRequest(
+#                     peer=badm_id,
+#                     msg_id=event.message.id,
+#                     options=[selected_option]
+#                 ))
+#                 print("Vote cast successfully!")
+#             except Exception as e:
+#                 print(f"Failed to vote: {e}")
+#             print(f"Voted for option: {poll.answers[0].text}")
+#     else:
+#         print(f"New message: {event.message.text or '<Non-text content>'}")
 
 @client.on(events.NewMessage(chats=geos_id))
 async def handle_and_resend_messages(event):

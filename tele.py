@@ -12,11 +12,11 @@ API_HASH = os.environ.get('API_HASH')
 PHONE_NUMBER = os.environ.get('PHONE_NUMBER')
 
 
-geos_id = int(os.environ.get('GEOS_ID'))
-penis_penis_id = int(os.environ.get('PENIS_PENIS_ID'))
-badm_id = int(os.environ.get('BADM_ID'))
-sglipa_id = int(os.environ.get('SGLIPA_ID'))
-strugalnya_id = int(os.environ.get('STRUFALNYA'))
+GEOS_ID = int(os.environ.get('GEOS_ID'))
+PENIS_PENIS_ID = int(os.environ.get('PENIS_PENIS_ID'))
+BADM_ID = int(os.environ.get('BADM_ID'))
+SGLIPA_ID = int(os.environ.get('SGLIPA_ID'))
+STRUGALNYA_ID = int(os.environ.get('STRUGALNYA'))
 
 
 client = TelegramClient(
@@ -26,10 +26,10 @@ client = TelegramClient(
     # device_model="iPhone 5s", 
     system_version="4.16.30-vxExpZero",)
 
-print(geos_id)
-print(penis_penis_id)
-print(badm_id)
-print(sglipa_id)
+print(GEOS_ID)
+print(PENIS_PENIS_ID)
+print(BADM_ID)
+print(SGLIPA_ID)
 
 async def main():
     print("Connecting to Telegram...")
@@ -80,7 +80,7 @@ async def sync(from_id, to_id, start, end):
 #     else:
 #         print(f"New message: {event.message.text or '<Non-text content>'}")
 
-@client.on(events.NewMessage(chats=geos_id))
+@client.on(events.NewMessage(chats=GEOS_ID))
 async def handle_and_resend_messages(event):
     message = event.message
     # print(f"in chat of geos: {message.reply_to.reply_to_msg_id}")
@@ -90,44 +90,46 @@ async def handle_and_resend_messages(event):
             original_reply_message = await event.get_reply_message()
             if "[СГЛЫПА]" in original_reply_message.text:
                 await client.send_message(
-                penis_penis_id, 
+                PENIS_PENIS_ID, 
                 message,  
                 reply_to=original_reply_message.id - 1
                 )
             else:
                 await client.send_message(
-                    penis_penis_id, 
+                    PENIS_PENIS_ID, 
                     message,  
                     reply_to=original_reply_message.id + 1
                 )
             print("Message forwarded as a reply successfully!")
         else:
-            await client.send_message(penis_penis_id, message)
+            await client.send_message(PENIS_PENIS_ID, message)
             print("Message forwarded successfully!")
     except Exception as e:
         print(f"Failed to forward message: {e}")
 
-@client.on(events.NewMessage(chats=penis_penis_id))
+@client.on(events.NewMessage(chats=PENIS_PENIS_ID))
 async def handle_message_sglipa(event):
     message = event.message
     # print(f"in chat of penis penis: {message.reply_to.reply_to_msg_id}")
     # print("Message from sglipa")
-    if message.text:
-        message.text = f"[СГЛЫПА] {message.text}"
-    try:
-        if message.reply_to_msg_id:
-            original_reply_message = await event.get_reply_message()
-            await client.send_message(
-                geos_id, 
-                message,  
-                reply_to=original_reply_message.id - 1
-            )
-            print("Message forwarded as a reply successfully!")
-        else:
-            await client.send_message(geos_id, message)
-            print("Message forwarded successfully!")
-    except Exception as e:
-        print(f"Failed to forward message: {e}")
+    if message.from_id.user_id == SGLIPA_ID:
+        if message.text:
+            message.text = f"[СГЛЫПА] {message.text}"
+        try:
+            if message.reply_to_msg_id:
+                original_reply_message = await event.get_reply_message()
+                await client.send_message(
+                    GEOS_ID, 
+                    message,  
+                    reply_to=original_reply_message.id - 1
+                )
+                print("Message forwarded as a reply successfully!")
+            else:
+                await client.send_message(GEOS_ID, message)
+                print("Message forwarded successfully!")
+        except Exception as e:
+            print(f"Failed to forward message: {e}")
+
 
 
 

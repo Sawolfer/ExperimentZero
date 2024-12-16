@@ -4,8 +4,8 @@ from telethon.tl.types import MessageMediaPoll
 from time import sleep
 import os
 from dotenv import load_dotenv, dotenv_values
+from bot_commands import handle_group_messages, get_commands
 
-load_dotenv() 
 
 API_ID = os.environ.get('API_ID')
 API_HASH = os.environ.get('API_HASH')
@@ -18,8 +18,6 @@ BADM_ID = int(os.environ.get('BADM_ID'))
 SGLIPA_ID = int(os.environ.get('SGLIPA_ID'))
 STRUGALNYA_ID = int(os.environ.get('STRUGALNYA'))
 
-poll_handling_enabled = True
-
 client = TelegramClient(
     'session.exp0.v1',
     API_ID,
@@ -27,6 +25,20 @@ client = TelegramClient(
     # device_model="iPhone 5s", 
     system_version="4.16.30-vxExpZero",)
 
+load_dotenv() 
+commands = get_commands(client, ME)
+
+ids = {
+    "ME": ME,
+    "GEOS": GEOS_ID,
+    "PENIS_PENIS": PENIS_PENIS_ID,
+    "BADM": BADM_ID,
+    "SGLIPA": SGLIPA_ID,
+    "STRUGALNYA": STRUGALNYA_ID
+}
+
+def get_id(name):
+    return ids[name]
 
 async def main():
     print("Connecting to Telegram...")
@@ -55,30 +67,6 @@ async def get_dialogs():
 #         sleep(0.1)
 #     print("Messages fetched successfully!")
 
-@client.on(events.NewMessage(chats=BADM_ID))
-async def handle_group_messages(event):
-    if not poll_handling_enabled:
-        return
-    elif isinstance(event.message.media, MessageMediaPoll):
-        poll = event.message.media.poll
-        print(f"Poll received: {poll.question}")
-        print(f'Options: {poll.answers}')
-        if poll.answers:
-            selected_option = poll.answers[0].option
-            print(f"Selected option: {poll.answers[0].text}")
-            try:
-                print(f"Voting for option: {poll.answers[0].text}")
-                await client(SendVoteRequest(
-                    peer=BADM_ID,
-                    msg_id=event.message.id,
-                    options=[selected_option]
-                ))
-                print("Vote cast successfully!")
-            except Exception as e:
-                print(f"Failed to vote: {e}")
-            print(f"Voted for option: {poll.answers[0].text}")
-    else:
-        print(f"New message: {event.message.text or '<Non-text content>'}")
 
 @client.on(events.NewMessage(chats=GEOS_ID))
 async def handle_and_resend_messages(event):
@@ -133,60 +121,24 @@ async def handle_message_sglipa(event):
         except Exception as e:
             print(f"Failed to forward message: {e}")
 
-
-def enable_poll_handling():
-    global poll_handling_enabled
-    poll_handling_enabled = True
-    print("Poll handling enabled.")
-
-def disable_poll_handling():
-    global poll_handling_enabled
-    poll_handling_enabled = False
-    print("Poll handling disabled.")
-
-async def async_enable_poll_handling():
-    enable_poll_handling()
-
-async def async_disable_poll_handling():
-    disable_poll_handling()
-
-async def turn_off():
-    print("Bot is shutting down...")
-    await client.disconnect()
-
-
-async def info():
-    message = (f"poll handling: {poll_handling_enabled}\n")
-    for command in commands:
-        message += f"{command}\n"
-    try:
-        await client.send_message(
-            ME,
-            message
-        )
-    except Exception as e:
-        print(f"Failed to provide info: {e}")
-
-commands = {
-    "badm_on": async_enable_poll_handling,
-    "badm_off": async_disable_poll_handling,
-    "turn_off": turn_off,
-    "info": info
-}
-
+# Handle commands from me
 @client.on(events.NewMessage(chats=ME))
 async def handle_command(event):
-    message = event.message
-    if message.text.startswith("/"): 
-        command = message.text[1:].strip() 
+    message = event.message.text.strip()
+    if message.startswith("/"):
+        command = message[1:]
         if command in commands:
             try:
-                await commands[command]() 
+                await commands[command]()
             except Exception as e:
                 print(f"Error executing command '{command}': {e}")
         else:
             print(f"Unknown command: {command}")
 
+# Handle polls from badminton group
+@client.on(events.NewMessage(chats=BADM_ID))
+async def handle_group(event):
+    await handle_group_messages(event, client)
 
 with client:
     print("Bot is running...")

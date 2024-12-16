@@ -113,10 +113,13 @@ async def handle_message_sglipa(event):
     # print(f"in chat of penis penis: {message.reply_to.reply_to_msg_id}")
     # print("Message from sglipa")
     if message.from_id.user_id == SGLIPA_ID:
+        
         if message.text:
             message.text = f"[СГЛЫПА] {message.text}"
         try:
-            if message.reply_to_msg_id:
+            if event.message.media:
+                await client.forward_messages(GEOS_ID, event.message)
+            elif message.reply_to_msg_id:
                 original_reply_message = await event.get_reply_message()
                 await client.send_message(
                     GEOS_ID, 
@@ -129,9 +132,6 @@ async def handle_message_sglipa(event):
                 print("Message forwarded successfully!")
         except Exception as e:
             print(f"Failed to forward message: {e}")
-
-
-
 
 with client:
     print("Bot is running...")

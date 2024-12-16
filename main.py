@@ -6,6 +6,7 @@ import os
 from dotenv import load_dotenv, dotenv_values
 from bot_commands import handle_group_messages, get_commands
 
+load_dotenv() 
 
 API_ID = os.environ.get('API_ID')
 API_HASH = os.environ.get('API_HASH')
@@ -25,7 +26,6 @@ client = TelegramClient(
     # device_model="iPhone 5s", 
     system_version="4.16.30-vxExpZero",)
 
-load_dotenv() 
 commands = get_commands(client, ME)
 
 ids = {

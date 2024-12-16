@@ -136,9 +136,9 @@ async def handle_command(event):
             print(f"Unknown command: {command}")
 
 # Handle polls from badminton group
-@client.on(events.NewMessage(chats=PENIS_PENIS_ID))
+@client.on(events.NewMessage(chats=BADM_ID))
 async def handle_group(event):
-    await handle_group_messages(event, client, commands["badm_on"])
+    await handle_group_messages(event, client)
 
 with client:
     print("Bot is running...")

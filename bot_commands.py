@@ -29,8 +29,10 @@ async def info(client, chat_id, commands):
     except Exception as e:
         print(f"Failed to send info: {e}")
 
-async def handle_group_messages(event, client, poll_handling_enabled):
+async def handle_group_messages(event, client):
+    
     if not poll_handling_enabled:
+        print("Poll handling is disabled.")
         return
 
     if isinstance(event.message.media, MessageMediaPoll):

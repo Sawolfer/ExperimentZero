@@ -11,13 +11,14 @@ API_ID = os.environ.get('API_ID')
 API_HASH = os.environ.get('API_HASH')
 PHONE_NUMBER = os.environ.get('PHONE_NUMBER')
 
-
+ME = int(os.environ.get('ME'))
 GEOS_ID = int(os.environ.get('GEOS_ID'))
 PENIS_PENIS_ID = int(os.environ.get('PENIS_PENIS_ID'))
 BADM_ID = int(os.environ.get('BADM_ID'))
 SGLIPA_ID = int(os.environ.get('SGLIPA_ID'))
 STRUGALNYA_ID = int(os.environ.get('STRUGALNYA'))
 
+poll_handling_enabled = True
 
 client = TelegramClient(
     'session.exp0.v1',
@@ -26,10 +27,6 @@ client = TelegramClient(
     # device_model="iPhone 5s", 
     system_version="4.16.30-vxExpZero",)
 
-print(GEOS_ID)
-print(PENIS_PENIS_ID)
-print(BADM_ID)
-print(SGLIPA_ID)
 
 async def main():
     print("Connecting to Telegram...")
@@ -44,41 +41,44 @@ async def get_dialogs():
 
 
 # Optional: Do not use, cuz it may cause ban in tg
-async def sync(from_id, to_id, start, end):
-    print("Fetching messages...")
-    messages = await client.get_messages(from_id, limit=end)
-    for i, message in enumerate(messages, start=start):
-        print(f"Message {i}: {message.text or message}")
-        try:
-            await client.send_message(to_id, message)
-            print("Message forwarded successfully!")
-        except Exception as e:
-            print(f"Failed to forward message: {e}")
-        sleep(0.1)
-    print("Messages fetched successfully!")
 
-# @client.on(events.NewMessage(chats=badm_id))
-# async def handle_group_messages(event):
-#     if isinstance(event.message.media, MessageMediaPoll):
-#         poll = event.message.media.poll
-#         print(f"Poll received: {poll.question}")
-#         print(f'Options: {poll.answers}')
-#         if poll.answers:
-#             selected_option = poll.answers[0].option
-#             print(f"Selected option: {poll.answers[0].text}")
-#             try:
-#                 print(f"Voting for option: {poll.answers[0].text}")
-#                 await client(SendVoteRequest(
-#                     peer=badm_id,
-#                     msg_id=event.message.id,
-#                     options=[selected_option]
-#                 ))
-#                 print("Vote cast successfully!")
-#             except Exception as e:
-#                 print(f"Failed to vote: {e}")
-#             print(f"Voted for option: {poll.answers[0].text}")
-#     else:
-#         print(f"New message: {event.message.text or '<Non-text content>'}")
+# async def sync(from_id, to_id, start, end):
+#     print("Fetching messages...")
+#     messages = await client.get_messages(from_id, limit=end)
+#     for i, message in enumerate(messages, start=start):
+#         print(f"Message {i}: {message.text or message}")
+#         try:
+#             await client.send_message(to_id, message)
+#             print("Message forwarded successfully!")
+#         except Exception as e:
+#             print(f"Failed to forward message: {e}")
+#         sleep(0.1)
+#     print("Messages fetched successfully!")
+
+@client.on(events.NewMessage(chats=BADM_ID))
+async def handle_group_messages(event):
+    if not poll_handling_enabled:
+        return
+    elif isinstance(event.message.media, MessageMediaPoll):
+        poll = event.message.media.poll
+        print(f"Poll received: {poll.question}")
+        print(f'Options: {poll.answers}')
+        if poll.answers:
+            selected_option = poll.answers[0].option
+            print(f"Selected option: {poll.answers[0].text}")
+            try:
+                print(f"Voting for option: {poll.answers[0].text}")
+                await client(SendVoteRequest(
+                    peer=BADM_ID,
+                    msg_id=event.message.id,
+                    options=[selected_option]
+                ))
+                print("Vote cast successfully!")
+            except Exception as e:
+                print(f"Failed to vote: {e}")
+            print(f"Voted for option: {poll.answers[0].text}")
+    else:
+        print(f"New message: {event.message.text or '<Non-text content>'}")
 
 @client.on(events.NewMessage(chats=GEOS_ID))
 async def handle_and_resend_messages(event):
@@ -132,6 +132,61 @@ async def handle_message_sglipa(event):
                 print("Message forwarded successfully!")
         except Exception as e:
             print(f"Failed to forward message: {e}")
+
+
+def enable_poll_handling():
+    global poll_handling_enabled
+    poll_handling_enabled = True
+    print("Poll handling enabled.")
+
+def disable_poll_handling():
+    global poll_handling_enabled
+    poll_handling_enabled = False
+    print("Poll handling disabled.")
+
+async def async_enable_poll_handling():
+    enable_poll_handling()
+
+async def async_disable_poll_handling():
+    disable_poll_handling()
+
+async def turn_off():
+    print("Bot is shutting down...")
+    await client.disconnect()
+
+
+async def info():
+    message = (f"poll handling: {poll_handling_enabled}\n")
+    for command in commands:
+        message += f"{command}\n"
+    try:
+        await client.send_message(
+            ME,
+            message
+        )
+    except Exception as e:
+        print(f"Failed to provide info: {e}")
+
+commands = {
+    "badm_on": async_enable_poll_handling,
+    "badm_off": async_disable_poll_handling,
+    "turn_off": turn_off,
+    "info": info
+}
+
+@client.on(events.NewMessage(chats=ME))
+async def handle_command(event):
+    message = event.message
+    if message.text.startswith("/"): 
+        command = message.text[1:].strip() 
+        if command in commands:
+            try:
+                await commands[command]() 
+            except Exception as e:
+                print(f"Error executing command '{command}': {e}")
+        else:
+            print(f"Unknown command: {command}")
+
 
 with client:
     print("Bot is running...")

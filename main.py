@@ -2,6 +2,8 @@ from telethon import TelegramClient, events
 from telethon.tl.functions.messages import SendVoteRequest
 from telethon.tl.types import MessageMediaPoll
 from time import sleep
+from datetime import datetime
+import asyncio
 import os
 from dotenv import load_dotenv, dotenv_values
 from bot_commands import handle_group_messages, get_commands
@@ -43,8 +45,8 @@ def get_id(name):
 async def main():
     print("Connecting to Telegram...")
     await client.start()
-    
     print("Connected!")
+    await notion()
 
 async def get_dialogs():
     dialogs = await client.get_dialogs()
@@ -139,6 +141,24 @@ async def handle_command(event):
 @client.on(events.NewMessage(chats=BADM_ID))
 async def handle_group(event):
     await handle_group_messages(event, client)
+
+async def notion():
+    sended_today = False
+    while True:
+        current_time = datetime.now()
+        if current_time.hour == 0 and sended_today:
+            sended_today = False
+        if current_time.hour == 8 and current_time.minute == 0 and not sended_today:
+            print("Sending reminder message...")
+            try:
+                await client.send_message(
+                    GEOS_ID, 
+                    "[НАПОМИНАЛКА] Новый месяц - продолжаем старый проект или открываем новый. Организуем сбор и открытие или занимаемся уже открытым."
+                )
+                print("Reminder message sent.")
+            except Exception as e:
+                print(f"Failed to send message: {e}")
+            sended_today = True
 
 with client:
     print("Bot is running...")

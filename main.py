@@ -3,7 +3,6 @@ from telethon.tl.functions.messages import SendVoteRequest
 from telethon.tl.types import MessageMediaPoll
 from time import sleep
 from datetime import datetime
-import asyncio
 import os
 from dotenv import load_dotenv, dotenv_values
 from bot_commands import handle_group_messages, get_commands

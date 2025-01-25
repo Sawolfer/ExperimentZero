@@ -1,0 +1,20 @@
+{
+    "data": [
+        "привет барт",
+        "ru",
+        {
+            "name": "/tmp/gradio/1fb634c95ee60911623727afa0a2ee3948de455b/female.wav",
+            "data": "https://coqui-xtts.hf.space/--replicas/1ycfn/file=/tmp/gradio/1fb634c95ee60911623727afa0a2ee3948de455b/female.wav",
+            "is_file": true,
+            "orig_name": "female.wav"
+        },
+        null,
+        false,
+        false,
+        false,
+        true
+    ],
+    "event_data": null,
+    "fn_index": 1,
+    "session_hash": "48yzl8ozcdm"
+}

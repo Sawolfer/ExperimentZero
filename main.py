@@ -1,11 +1,11 @@
 from telethon import TelegramClient, events
-from telethon.tl.functions.messages import SendVoteRequest
-from telethon.tl.types import MessageMediaPoll
+from telethon.tl.functions.messages import SendVoteRequest, SendMediaRequest
 from time import sleep
 from datetime import datetime
 import os
 from dotenv import load_dotenv, dotenv_values
 from bot_commands import handle_group_messages, get_commands
+import subprocess
 
 load_dotenv() 
 
@@ -45,7 +45,7 @@ async def main():
     print("Connecting to Telegram...")
     await client.start()
     print("Connected!")
-    await notion()
+    # await notion()
 
 async def get_dialogs():
     dialogs = await client.get_dialogs()
@@ -74,9 +74,35 @@ async def handle_and_resend_messages(event):
     message = event.message
     # print(f"in chat of geos: {message.reply_to.reply_to_msg_id}")
     print(f"Message: {message.text or '<Non-text content>'}")
+    # print(message)
     try:
         if message.reply_to_msg_id:
             original_reply_message = await event.get_reply_message()
+            if "адам" == message.text:
+                working_text = original_reply_message.text
+                if "[СГЛЫПА]" in original_reply_message.text:
+                    working_text = working_text.replace("[СГЛЫПА]", "")
+                try:
+                    os.chdir("tts")
+                    result = subprocess.run(
+                        ["uv", "run", "text-to-speech.py", working_text],
+                        check=True,  # Raise an exception if the command fails
+                        text=True,   # Capture output as text
+                        capture_output=True  # Capture stdout and stderr
+                    )
+                    print("Script output:", result)
+                    voice = 'bebe.ogg'
+                    await client.send_file(
+                        GEOS_ID,
+                        file=voice,
+                        voice_note=True,
+                        reply_to=original_reply_message.id
+                    )
+                    
+                    os.chdir("..")
+                except subprocess.CalledProcessError as e:
+                    print("Error running script:", e.stderr)
+                return
             if "[СГЛЫПА]" in original_reply_message.text:
                 await client.send_message(
                 PENIS_PENIS_ID, 

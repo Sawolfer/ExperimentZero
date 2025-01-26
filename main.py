@@ -3,9 +3,11 @@ from telethon.tl.functions.messages import SendVoteRequest, SendMediaRequest
 from time import sleep
 from datetime import datetime
 import os
+import re
 from dotenv import load_dotenv, dotenv_values
 from bot_commands import handle_group_messages, get_commands
 import subprocess
+import voice 
 
 load_dotenv() 
 
@@ -68,7 +70,6 @@ async def get_dialogs():
 #         sleep(0.1)
 #     print("Messages fetched successfully!")
 
-
 @client.on(events.NewMessage(chats=GEOS_ID))
 async def handle_and_resend_messages(event):
     message = event.message
@@ -78,30 +79,31 @@ async def handle_and_resend_messages(event):
     try:
         if message.reply_to_msg_id:
             original_reply_message = await event.get_reply_message()
-            if "адам" == message.text:
+            if "ева" == message.text or "Ева" in message.text or "ребро адама" in message.text:
                 working_text = original_reply_message.text
                 if "[СГЛЫПА]" in original_reply_message.text:
                     working_text = working_text.replace("[СГЛЫПА]", "")
-                try:
-                    os.chdir("tts")
-                    result = subprocess.run(
-                        ["uv", "run", "text-to-speech.py", working_text],
-                        check=True,  # Raise an exception if the command fails
-                        text=True,   # Capture output as text
-                        capture_output=True  # Capture stdout and stderr
-                    )
-                    print("Script output:", result)
-                    voice = 'bebe.ogg'
-                    await client.send_file(
-                        GEOS_ID,
-                        file=voice,
-                        voice_note=True,
-                        reply_to=original_reply_message.id
-                    )
-                    
-                    os.chdir("..")
-                except subprocess.CalledProcessError as e:
-                    print("Error running script:", e.stderr)
+                l = bool(re.search(r'[a-zA-Z]', original_reply_message.text))  
+                if l:
+                    status = voice.generate_audio(working_text, "en")
+                else:
+                    status = voice.generate_audio(working_text, "ru")
+                
+                # if "Error" in status:
+                #     await client.send_message(
+                #         GEOS_ID, 
+                #         status,  
+                #         reply_to=original_reply_message.id
+                #     )
+                #     return
+                voice_msg = './output.ogg'
+                
+                await client.send_file(
+                    GEOS_ID,
+                    file=voice_msg,
+                    voice_note=True,
+                    reply_to=original_reply_message.id
+                )
                 return
             if "[СГЛЫПА]" in original_reply_message.text:
                 await client.send_message(

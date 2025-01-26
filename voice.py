@@ -17,7 +17,7 @@ def generate_audio(text, language="ru"):
         tts = TTS(model_name="tts_models/multilingual/multi-dataset/xtts_v2", progress_bar=True, gpu=False)
         # tts = TTS(model_name=' tts_models/multilingual/multi-dataset/xtts_v2').to(device)
         current_dir = os.path.dirname(__file__)
-        output_file = os.path.join(current_dir, "output.wav")
+        output_file = os.path.join(current_dir, "output.ogg")
         speaker_file = os.path.join(current_dir, "female.wav")
         if not os.path.exists(speaker_file):
             print("Speaker file not found!")
@@ -42,4 +42,4 @@ demo = gr.Interface(
 #     share=True
 # )
 
-generate_audio("Гошечка привет пососи мои яички")
+# generate_audio("пенис пенис")

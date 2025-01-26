@@ -1,8 +1,40 @@
+import os 
+import torch
 from TTS.api import TTS
-tts = TTS("tts_models/multilingual/multi-dataset/xtts_v2", gpu=False)
+import gradio as gr
 
-# generate speech by cloning a voice using default settings
-tts.tts_to_file(text="салам братишка",
-                file_path="output.wav",
-                speaker_wav="./female.wav",
-                language="ru")
+
+device = "cuda" if torch.cuda.is_available() else "cpu"
+
+# tts = TTS(TTS.list_models()[0])
+# wav = tts.tts("This is a test! This is also a test!!", speaker=tts.speakers[0], language=tts.languages[0])
+# tts.tts_to_file(text="Hello world!", speaker=tts.speakers[0], language=tts.languages[0], file_path="output.wav")
+
+def generate_audio(text):
+    try:
+        # tts = TTS(model_name="xtts_v2", model_path=)
+        # speakers = torch.load("female.wav")
+        tts = TTS(model_name="tts_models/multilingual/multi-dataset/xtts_v2", progress_bar=True, gpu=False)
+        # tts = TTS(model_name=' tts_models/multilingual/multi-dataset/xtts_v2').to(device)
+        current_dir = os.path.dirname(__file__)
+        output_file = os.path.join(current_dir, "output.wav")
+        speaker_file = os.path.join(current_dir, "female.wav")
+        tts.tts_to_file(
+            text=text, 
+            file_path=output_file,
+            language="en", 
+            speaker_wav=speaker_file
+            )
+        return
+    except Exception as e:
+        print(f"Error: {e}")
+
+demo = gr.Interface(
+    fn=generate_audio, 
+    inputs=[gr.Text(label="input"),]
+    ,outputs=[gr.Audio(label="audio")],
+    )
+
+demo.launch(
+    share=True
+)

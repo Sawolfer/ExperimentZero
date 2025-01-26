@@ -1,20 +1,29 @@
 {
     "data": [
-        "привет барт",
-        "ru",
+        [
+            {
+                "name": "/tmp/gradio/8065291daf2cdfea9b07b0192882f2e0185198ae/tmpg52obhwu.mp4",
+                "data": null,
+                "is_file": true,
+                "orig_name": "tmpg52obhwu.mp4"
+            },
+            null
+        ],
         {
-            "name": "/tmp/gradio/1fb634c95ee60911623727afa0a2ee3948de455b/female.wav",
-            "data": "https://coqui-xtts.hf.space/--replicas/1ycfn/file=/tmp/gradio/1fb634c95ee60911623727afa0a2ee3948de455b/female.wav",
+            "name": "/tmp/gradio/01d8ff710efd815d0791f1919b4a9f8bdca53e0f/output.wav",
+            "data": null,
             "is_file": true,
-            "orig_name": "female.wav"
+            "orig_name": "output.wav"
         },
-        null,
-        false,
-        false,
-        false,
-        true
+        "Time to generate audio: 3418 milliseconds\nReal-time factor (RTF): 0.64\n",
+        {
+            "name": "/tmp/gradio/656b8da5eb7f451bfe605545d55a094a7308386e/female-0-100.wav",
+            "data": null,
+            "is_file": true,
+            "orig_name": "female-0-100.wav"
+        }
     ],
-    "event_data": null,
-    "fn_index": 1,
-    "session_hash": "48yzl8ozcdm"
+    "is_generating": false,
+    "duration": 4.850872039794922,
+    "average_duration": 3.247461842976028
 }

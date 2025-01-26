@@ -10,7 +10,7 @@ device = "cuda" if torch.cuda.is_available() else "cpu"
 # wav = tts.tts("This is a test! This is also a test!!", speaker=tts.speakers[0], language=tts.languages[0])
 # tts.tts_to_file(text="Hello world!", speaker=tts.speakers[0], language=tts.languages[0], file_path="output.wav")
 
-def generate_audio(text):
+def generate_audio(text, language="ru"):
     try:
         # tts = TTS(model_name="xtts_v2", model_path=)
         # speakers = torch.load("female.wav")
@@ -19,10 +19,13 @@ def generate_audio(text):
         current_dir = os.path.dirname(__file__)
         output_file = os.path.join(current_dir, "output.wav")
         speaker_file = os.path.join(current_dir, "female.wav")
+        if not os.path.exists(speaker_file):
+            print("Speaker file not found!")
+            return
         tts.tts_to_file(
             text=text, 
             file_path=output_file,
-            language="en", 
+            language=language, 
             speaker_wav=speaker_file
             )
         return
@@ -35,6 +38,8 @@ demo = gr.Interface(
     ,outputs=[gr.Audio(label="audio")],
     )
 
-demo.launch(
-    share=True
-)
+# demo.launch(
+#     share=True
+# )
+
+generate_audio("Гошечка привет пососи мои яички")

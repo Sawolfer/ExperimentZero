@@ -2,7 +2,7 @@ from telethon import TelegramClient, events
 from telethon.tl.functions.messages import SendVoteRequest
 from telethon.tl.types import MessageMediaPoll
 
-poll_handling_enabled = True
+poll_handling_enabled = False
 bot_shutdown = False  
 
 async def enable_poll_handling():

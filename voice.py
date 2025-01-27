@@ -6,16 +6,11 @@ import gradio as gr
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
 
-# tts = TTS(TTS.list_models()[0])
-# wav = tts.tts("This is a test! This is also a test!!", speaker=tts.speakers[0], language=tts.languages[0])
-# tts.tts_to_file(text="Hello world!", speaker=tts.speakers[0], language=tts.languages[0], file_path="output.wav")
-
 def generate_audio(text, language="ru"):
     try:
-        # tts = TTS(model_name="xtts_v2", model_path=)
-        # speakers = torch.load("female.wav")
+
         tts = TTS(model_name="tts_models/multilingual/multi-dataset/xtts_v2", progress_bar=True, gpu=False)
-        # tts = TTS(model_name=' tts_models/multilingual/multi-dataset/xtts_v2').to(device)
+
         current_dir = os.path.dirname(__file__)
         output_file = os.path.join(current_dir, "output.ogg")
         speaker_file = os.path.join(current_dir, "female.wav")

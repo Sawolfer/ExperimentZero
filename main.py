@@ -1,13 +1,15 @@
 from telethon import TelegramClient, events
-from telethon.tl.functions.messages import SendVoteRequest, SendMediaRequest
-from time import sleep
-from datetime import datetime
 import os
 import re
 from dotenv import load_dotenv, dotenv_values
 from bot_commands import handle_group_messages, get_commands
-import subprocess
+import schedule
+import time
+import asyncio
+
+
 import voice 
+import sport_reg as sport
 
 load_dotenv() 
 
@@ -21,6 +23,7 @@ PENIS_PENIS_ID = int(os.environ.get('PENIS_PENIS_ID'))
 BADM_ID = int(os.environ.get('BADM_ID'))
 SGLIPA_ID = int(os.environ.get('SGLIPA_ID'))
 STRUGALNYA_ID = int(os.environ.get('STRUGALNYA'))
+SPORT_ID = int(os.environ.get('IU_SPORT'))
 
 client = TelegramClient(
     'session.exp0.v1',
@@ -37,23 +40,40 @@ ids = {
     "PENIS_PENIS": PENIS_PENIS_ID,
     "BADM": BADM_ID,
     "SGLIPA": SGLIPA_ID,
-    "STRUGALNYA": STRUGALNYA_ID
+    "STRUGALNYA": STRUGALNYA_ID,
+    "SPORT": SPORT_ID
 }
 
 def get_id(name):
     return ids[name]
 
+schedule_data = [
+    ("Thursday", "Badminton", "20:00"),
+    ("Saturday", "Badminton", "19:00"),
+    ("Sunday", "Badminton", "18:00")
+]
+
 async def main():
     print("Connecting to Telegram...")
     await client.start()
     print("Connected!")
-    # await notion()
+    
+    for day, sport, time_str in schedule_data:
+        schedule.every().day.at(time_str).do(
+            lambda d=day, s=sport, t=time_str: asyncio.create_task(
+                sport.sport_reg(client, SPORT_ID, d, s, t)
+            )
+        )
 
-async def get_dialogs():
-    dialogs = await client.get_dialogs()
-    for dialog in dialogs:
-        print(dialog.name, dialog.id)
+    while True:
+        schedule.run_pending()
+        await asyncio.sleep(1)
+    
 
+async def get_chats():
+    chats = await client.get_dialogs()
+    for i in range(10):
+        print(chats[i].name, chats[i].id)
 
 # Optional: Do not use, cuz it may cause ban in tg
 
@@ -169,25 +189,32 @@ async def handle_command(event):
 async def handle_group(event):
     await handle_group_messages(event, client)
 
-async def notion():
-    sended_today = False
-    while True:
-        current_time = datetime.now()
-        if current_time.hour == 0 and sended_today:
-            sended_today = False
-        if current_time.hour == 8 and current_time.minute == 0 and not sended_today:
-            print("Sending reminder message...")
-            try:
-                await client.send_message(
-                    GEOS_ID, 
-                    "[НАПОМИНАЛКА] Новый месяц - продолжаем старый проект или открываем новый. Организуем сбор и открытие или занимаемся уже открытым."
-                )
-                print("Reminder message sent.")
-            except Exception as e:
-                print(f"Failed to send message: {e}")
-            sended_today = True
+# async def notion():
+#     sended_today = False
+#     while True:
+#         current_time = datetime.now()
+#         if current_time.hour == 0 and sended_today:
+#             sended_today = False
+#         if current_time.hour == 8 and current_time.minute == 0 and not sended_today:
+#             print("Sending reminder message...")
+#             try:
+#                 await client.send_message(
+#                     GEOS_ID, 
+#                     "[НАПОМИНАЛКА] Новый месяц - продолжаем старый проект или открываем новый. Организуем сбор и открытие или занимаемся уже открытым."
+#                 )
+#                 print("Reminder message sent.")
+#             except Exception as e:
+#                 print(f"Failed to send message: {e}")
+#             sended_today = True
+
+# async def get_msg():
+#     last_msgs = await client.get_messages(int(6343627526), limit=2)
+#     print(last_msgs)
+#     # for msg in last_msgs:
+#     #     print(json.dumps(msg.to_dict(), indent=4))
 
 with client:
     print("Bot is running...")
     client.loop.run_until_complete(main())
     client.run_until_disconnected()
+    

@@ -4,8 +4,8 @@ import re
 from dotenv import load_dotenv, dotenv_values
 from bot_commands import handle_group_messages, get_commands
 import schedule
-import time
 import asyncio
+import json
 
 
 import voice 
@@ -47,23 +47,31 @@ ids = {
 def get_id(name):
     return ids[name]
 
-schedule_data = [
-    ("Thursday", "Badminton", "20:00"),
-    ("Saturday", "Badminton", "19:00"),
-    ("Sunday", "Badminton", "18:00")
-]
+with open("schedule.json", "r") as file:
+    schedule_data = json.load(file)
+
+print(schedule_data)
 
 async def main():
     print("Connecting to Telegram...")
     await client.start()
     print("Connected!")
     
-    for day, sport, time_str in schedule_data:
+    for entry in schedule_data["schedule"]:
+        day = entry["day"]
+        sport = entry["sport"]
+        time_str = entry["time"].strip() 
+
+        if not re.match(r"^\d{2}:\d{2}(:\d{2})?$", time_str):
+            print(f"Invalid time format: {time_str}. Skipping.")
+            continue
+
         schedule.every().day.at(time_str).do(
             lambda d=day, s=sport, t=time_str: asyncio.create_task(
                 sport.sport_reg(client, SPORT_ID, d, s, t)
             )
         )
+
 
     while True:
         schedule.run_pending()
@@ -90,6 +98,7 @@ async def get_chats():
 #         sleep(0.1)
 #     print("Messages fetched successfully!")
 
+# Geos chat
 @client.on(events.NewMessage(chats=GEOS_ID))
 async def handle_and_resend_messages(event):
     message = event.message
@@ -144,6 +153,7 @@ async def handle_and_resend_messages(event):
     except Exception as e:
         print(f"Failed to forward message: {e}")
 
+# handle messages from sglipa and resend to PM geos
 @client.on(events.NewMessage(chats=PENIS_PENIS_ID))
 async def handle_message_sglipa(event):
     message = event.message
@@ -176,6 +186,32 @@ async def handle_command(event):
     message = event.message.text.strip()
     if message.startswith("/"):
         command = message[1:]
+        print(f"Command received: {command}")
+        if "schedule" in command:
+            schedule_data = []  
+            lines = command.split("\n") 
+
+            for line in lines:
+                if not line.strip():
+                    continue
+
+                parts = line.split(" ")
+                if len(parts) != 3:
+                    print(f"Invalid format in line: {line}")
+                    continue
+
+                day, sport, time = parts
+                schedule_data.append({
+                    "day": day,
+                    "sport": sport,
+                    "time": time
+                })
+
+            with open("schedule.json", "w") as file:
+                json.dump({"schedule": schedule_data}, file, indent=4) 
+
+            print("Schedule updated.")
+            return
         if command in commands:
             try:
                 await commands[command]()
@@ -188,30 +224,6 @@ async def handle_command(event):
 @client.on(events.NewMessage(chats=BADM_ID))
 async def handle_group(event):
     await handle_group_messages(event, client)
-
-# async def notion():
-#     sended_today = False
-#     while True:
-#         current_time = datetime.now()
-#         if current_time.hour == 0 and sended_today:
-#             sended_today = False
-#         if current_time.hour == 8 and current_time.minute == 0 and not sended_today:
-#             print("Sending reminder message...")
-#             try:
-#                 await client.send_message(
-#                     GEOS_ID, 
-#                     "[НАПОМИНАЛКА] Новый месяц - продолжаем старый проект или открываем новый. Организуем сбор и открытие или занимаемся уже открытым."
-#                 )
-#                 print("Reminder message sent.")
-#             except Exception as e:
-#                 print(f"Failed to send message: {e}")
-#             sended_today = True
-
-# async def get_msg():
-#     last_msgs = await client.get_messages(int(6343627526), limit=2)
-#     print(last_msgs)
-#     # for msg in last_msgs:
-#     #     print(json.dumps(msg.to_dict(), indent=4))
 
 with client:
     print("Bot is running...")

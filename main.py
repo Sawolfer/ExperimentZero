@@ -6,9 +6,10 @@ from bot_commands import handle_group_messages, get_commands
 import schedule
 import asyncio
 import json
+from time import sleep
 
 
-import voice 
+# import voice 
 import sport_reg as sport
 
 load_dotenv() 
@@ -56,27 +57,27 @@ async def main():
     print("Connecting to Telegram...")
     await client.start()
     print("Connected!")
+    schedule_sport()
     
+    while True:
+        schedule.run_pending()
+        await asyncio.sleep(1)
+    
+def schedule_sport():
+    schedule.clear()
     for entry in schedule_data["schedule"]:
         day = entry["day"]
-        sport = entry["sport"]
+        sport_name = entry["sport"]
         time_str = entry["time"].strip() 
-
         if not re.match(r"^\d{2}:\d{2}(:\d{2})?$", time_str):
             print(f"Invalid time format: {time_str}. Skipping.")
             continue
 
         schedule.every().day.at(time_str).do(
-            lambda d=day, s=sport, t=time_str: asyncio.create_task(
+            lambda d=day, s=sport_name, t=time_str: asyncio.create_task(
                 sport.sport_reg(client, SPORT_ID, d, s, t)
             )
         )
-
-
-    while True:
-        schedule.run_pending()
-        await asyncio.sleep(1)
-    
 
 async def get_chats():
     chats = await client.get_dialogs()
@@ -108,32 +109,32 @@ async def handle_and_resend_messages(event):
     try:
         if message.reply_to_msg_id:
             original_reply_message = await event.get_reply_message()
-            if "ева" == message.text or "Ева" in message.text or "ребро адама" in message.text:
-                working_text = original_reply_message.text
-                if "[СГЛЫПА]" in original_reply_message.text:
-                    working_text = working_text.replace("[СГЛЫПА]", "")
-                l = bool(re.search(r'[a-zA-Z]', original_reply_message.text))  
-                if l:
-                    status = voice.generate_audio(working_text, "en")
-                else:
-                    status = voice.generate_audio(working_text, "ru")
+            # if "ева" == message.text or "Ева" in message.text or "ребро адама" in message.text:
+            #     working_text = original_reply_message.text
+            #     if "[СГЛЫПА]" in original_reply_message.text:
+            #         working_text = working_text.replace("[СГЛЫПА]", "")
+            #     l = bool(re.search(r'[a-zA-Z]', original_reply_message.text))  
+            #     if l:
+            #         status = voice.generate_audio(working_text, "en")
+            #     else:
+            #         status = voice.generate_audio(working_text, "ru")
                 
-                # if "Error" in status:
-                #     await client.send_message(
-                #         GEOS_ID, 
-                #         status,  
-                #         reply_to=original_reply_message.id
-                #     )
-                #     return
-                voice_msg = './output.ogg'
+            #     # if "Error" in status:
+            #     #     await client.send_message(
+            #     #         GEOS_ID, 
+            #     #         status,  
+            #     #         reply_to=original_reply_message.id
+            #     #     )
+            #     #     return
+            #     voice_msg = './output.ogg'
                 
-                await client.send_file(
-                    GEOS_ID,
-                    file=voice_msg,
-                    voice_note=True,
-                    reply_to=original_reply_message.id
-                )
-                return
+            #     await client.send_file(
+            #         GEOS_ID,
+            #         file=voice_msg,
+            #         voice_note=True,
+            #         reply_to=original_reply_message.id
+            #     )
+            #     return
             if "[СГЛЫПА]" in original_reply_message.text:
                 await client.send_message(
                 PENIS_PENIS_ID, 
@@ -194,8 +195,8 @@ async def handle_command(event):
             for line in lines:
                 if not line.strip():
                     continue
-
-                parts = line.split(" ")
+                
+                parts = line.split(", ")
                 if len(parts) != 3:
                     print(f"Invalid format in line: {line}")
                     continue
@@ -209,8 +210,9 @@ async def handle_command(event):
 
             with open("schedule.json", "w") as file:
                 json.dump({"schedule": schedule_data}, file, indent=4) 
-
+            schedule_sport()
             print("Schedule updated.")
+            
             return
         if command in commands:
             try:

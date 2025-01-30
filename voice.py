@@ -33,8 +33,8 @@ demo = gr.Interface(
     ,outputs=[gr.Audio(label="audio")],
     )
 
-# demo.launch(
-#     share=True
-# )
+demo.launch(
+    share=False
+)
 
 # generate_audio("пенис пенис")

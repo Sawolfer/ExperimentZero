@@ -2,7 +2,6 @@ from telethon import TelegramClient, events
 import os
 import re
 from dotenv import load_dotenv, dotenv_values
-from bot_commands import handle_group_messages, get_commands
 import schedule
 import asyncio
 import json
@@ -10,7 +9,9 @@ from time import sleep
 
 
 # import voice 
-import sport_reg as sport
+from components.sport import sport_reg as sport
+from components.bot_commands import handle_group_messages, get_commands
+
 
 load_dotenv() 
 
@@ -51,7 +52,7 @@ def get_id(name):
 with open("schedule.json", "r") as file:
     schedule_data = json.load(file)
 
-print(schedule_data)
+# print(schedule_data)
 
 async def main():
     print("Connecting to Telegram...")

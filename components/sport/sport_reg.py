@@ -6,8 +6,26 @@ from time import sleep
 prev_button = None
 
 async def sport_reg(client, chat_id, day, sport, time):
-    # sleep(0.1)
     print("start sport registration")
+    last_message = await client.get_messages(chat_id, limit=1)
+    last_message = last_message[0]
+    message_buttons_rows = last_message.reply_markup.rows.copy()
+    message_buttons_rows = message_buttons_rows[:-1]
+    for row in message_buttons_rows:
+        for button in row.buttons:
+            if "All classes" in button.text:
+                result = await client(GetBotCallbackAnswerRequest(
+                        peer=chat_id,
+                        msg_id=last_message.id,
+                        data=button.data
+                    ))
+                print("Result of callback:", result)
+                break
+    await day_chooser(client, chat_id, day, sport, time)
+
+async def day_chooser(client, chat_id, day, sport, time):
+    # sleep(0.1)
+    print("start day choosing")
     last_message = await client.get_messages(chat_id, limit=1)
     last_message = last_message[0]
     message_buttons_rows = last_message.reply_markup.rows.copy()

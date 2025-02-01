@@ -4,11 +4,13 @@ import json
 
 
 def personal_info(api_id, api_hash, phone_number):
-    with open(".env2", "w") as f:
+    #TODO check that it does not rewrite the file
+    with open(".env", "w") as f:
         f.write(f"API_ID='{api_id}'\n")
         f.write(f"API_HASH='{api_hash}'\n")
         f.write(f"PHONE_NUMBER='{phone_number}'\n")
     
+    #TODO make the whole register system (with code from telegram)
     
     return "Now you will receive a code, enter it please in the next window"
 

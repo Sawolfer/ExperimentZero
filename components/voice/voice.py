@@ -27,14 +27,14 @@ def generate_audio(text, language="ru"):
     except Exception as e:
         print(f"Error: {e}")
 
-demo = gr.Interface(
-    fn=generate_audio, 
-    inputs=[gr.Text(label="input"),]
-    ,outputs=[gr.Audio(label="audio")],
-    )
+# demo = gr.Interface(
+#     fn=generate_audio, 
+#     inputs=[gr.Text(label="input"),]
+#     ,outputs=[gr.Audio(label="audio")],
+#     )
 
-demo.launch(
-    share=False
-)
+# demo.launch(
+#     share=False
+# )
 
 # generate_audio("пенис пенис")

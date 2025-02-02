@@ -1,0 +1,27 @@
+import asyncio
+import schedule
+import json
+import re
+
+from components.sport import sport_reg
+
+
+with open("schedule.json", "r") as file:
+    schedule_data = json.load(file)
+
+def schedule_sport(client, SPORT_ID):
+    schedule.clear()
+    for entry in schedule_data["schedule"]:
+        day = entry["day"]
+        sport_name = entry["sport"]
+        time_str = entry["time"].strip() 
+        if not re.match(r"^\d{2}:\d{2}(:\d{2})?$", time_str):
+            print(f"Invalid time format: {time_str}. Skipping.")
+            continue
+        
+        schedule.every().day.at(time_str).do(
+            lambda d=day, s=sport_name, t=time_str: asyncio.create_task(
+                sport_reg.sport_reg(client, SPORT_ID, d, s, t)
+            )
+        )
+    print(schedule.get_jobs())

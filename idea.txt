@@ -1,9 +1,0 @@
-the main reason of creating this mini project is try to use LLM for answering peoples instead of me
-
-the other idea is to create bot that will be make posts in tg channel 
-
-https://www.youtube.com/watch?v=5qlLJrv_q-Q
-
-
-
-Media message 5: MessageMediaPoll(poll=Poll(id=5938427649822032361, question=TextWithEntities(text='We have a badminton session today at 16:30. Mark in the poll if you will attend — limited to 16 participants', entities=[]), answers=[PollAnswer(text=TextWithEntities(text='I will attend', entities=[]), option=b'0'), PollAnswer(text=TextWithEntities(text='Results', entities=[]), option=b'1')], closed=True, public_voters=True, multiple_choice=False, quiz=False, close_period=None, close_date=None), results=PollResults(min=False, results=[PollAnswerVoters(option=b'0', voters=25, chosen=False, correct=False), PollAnswerVoters(option=b'1', voters=5, chosen=False, correct=False)], total_voters=30, recent_voters=[PeerUser(user_id=5858805529), PeerUser(user_id=379529027), PeerUser(user_id=5409698123)], solution=None, solution_entities=[]))

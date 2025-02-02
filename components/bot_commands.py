@@ -1,8 +1,10 @@
 from telethon import TelegramClient, events
 from telethon.tl.functions.messages import SendVoteRequest
 from telethon.tl.types import MessageMediaPoll
+import json
 
-poll_handling_enabled = True
+
+poll_handling_enabled = False
 bot_shutdown = False  
 
 async def enable_poll_handling():
@@ -24,6 +26,15 @@ async def turn_off(client):
 async def info(client, chat_id, commands):
     message = f"Poll handling: {poll_handling_enabled}\n"
     message += "Available commands:\n" + "\n".join(f"/{cmd}" for cmd in commands.keys())
+    message += "\n\nSchedule:\n"
+    with open("schedule.json", "r") as file:
+        schedule_data = json.load(file)
+    for entry in schedule_data['schedule']:
+        day = entry["day"]
+        sport = entry["sport"]
+        time = entry["time"].strip()
+        
+        message += f"{day}, {sport}, {time}\n"
     try:
         await client.send_message(chat_id, message)
     except Exception as e:

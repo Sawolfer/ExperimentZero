@@ -1,191 +1,142 @@
 from telethon import TelegramClient, events
-from telethon.tl.functions.messages import SendVoteRequest, SendMediaRequest
-from time import sleep
-from datetime import datetime
 import os
+import re
 from dotenv import load_dotenv, dotenv_values
-from bot_commands import handle_group_messages, get_commands
-import subprocess
+import threading
+import schedule
+import asyncio
+import json
+from time import sleep
+
+
+# import voice 
+from layout import start_layout
+import schedule_sport
+from components.sport import sport_reg as sport
+from components.bot_commands import get_commands
+
 
 load_dotenv() 
+
+#TODO make a boolean variable to_register
 
 API_ID = os.environ.get('API_ID')
 API_HASH = os.environ.get('API_HASH')
 PHONE_NUMBER = os.environ.get('PHONE_NUMBER')
 
 ME = int(os.environ.get('ME'))
-GEOS_ID = int(os.environ.get('GEOS_ID'))
-PENIS_PENIS_ID = int(os.environ.get('PENIS_PENIS_ID'))
-BADM_ID = int(os.environ.get('BADM_ID'))
-SGLIPA_ID = int(os.environ.get('SGLIPA_ID'))
-STRUGALNYA_ID = int(os.environ.get('STRUGALNYA'))
+SPORT_ID = int(os.environ.get('IU_SPORT'))
+# TO_HANDLED_GROUP_ID = int(os.environ.get('TO_HANDLED_GROUP_ID'))
 
 client = TelegramClient(
     'session.exp0.v1',
-    API_ID,
+    int(API_ID),
     API_HASH,
     # device_model="iPhone 5s", 
     system_version="4.16.30-vxExpZero",)
 
-commands = get_commands(client, ME)
 
-ids = {
-    "ME": ME,
-    "GEOS": GEOS_ID,
-    "PENIS_PENIS": PENIS_PENIS_ID,
-    "BADM": BADM_ID,
-    "SGLIPA": SGLIPA_ID,
-    "STRUGALNYA": STRUGALNYA_ID
-}
+async def get_ids():
+    if os.environ.get('IU_SPORT'):
+        return
+    dialogs = await client.get_dialogs()
+    important_chats = []
+    for dialog in dialogs:
+        if dialog.name == "IU Sport":
+            print(dialog.id)
+            with open(".env", "a") as file:
+                file.write(f"IU_SPORT={dialog.id}\n")
+            os.environ["IU_SPORT"] = str(dialog.id)
+            important_chats.append(dialog.id)
+            break
 
-def get_id(name):
-    return ids[name]
-
-async def main():
+async def telegram_main():
     print("Connecting to Telegram...")
     await client.start()
     print("Connected!")
-    # await notion()
+    
+    await get_ids()
+    
+    # ME = int(os.environ.get('ME'))
+    SPORT_ID = int(os.environ.get('IU_SPORT'))
+    
+    # await sport.sport_reg(client, SPORT_ID, "Monday", "Boxing", "19:30")
+    schedule_sport.schedule_sport(client=client, SPORT_ID=SPORT_ID)
+    
+    while True:
+        loop = asyncio.get_running_loop()
+        await loop.run_in_executor(None, schedule.run_pending)
+        await asyncio.sleep(1)
 
-async def get_dialogs():
-    dialogs = await client.get_dialogs()
-    for dialog in dialogs:
-        print(dialog.name, dialog.id)
+def load_layout():
+    # loop = asyncio.get_running_loop()
+    # await loop.run_in_executor(None, start_layout)
+    start_layout(client, SPORT_ID)
 
+async def main():
+    # task_telegram = asyncio.create_task((telegram_main()))
+    # task_gradio = asyncio.create_task(load_layout())
+    gradio_thread = threading.Thread(target=load_layout, daemon=True)
+    gradio_thread.start()
+    
+    # await asyncio.gather(task_telegram, task_gradio)
+    await telegram_main()
 
-# Optional: Do not use, cuz it may cause ban in tg
+commands = get_commands(client, ME)
 
-# async def sync(from_id, to_id, start, end):
-#     print("Fetching messages...")
-#     messages = await client.get_messages(from_id, limit=end)
-#     for i, message in enumerate(messages, start=start):
-#         print(f"Message {i}: {message.text or message}")
-#         try:
-#             await client.send_message(to_id, message)
-#             print("Message forwarded successfully!")
-#         except Exception as e:
-#             print(f"Failed to forward message: {e}")
-#         sleep(0.1)
-#     print("Messages fetched successfully!")
+async def get_chats():
+    chats = await client.get_dialogs()
+    for i in range(10):
+        print(chats[i].name, chats[i].id)
 
+# # Handle commands from me
+# @client.on(events.NewMessage(chats=ME))
+# async def handle_command(event):
+#     message = event.message.text.strip()
+#     if message.startswith("/"):
+#         command = message[1:]
+#         print(f"Command received: {command}")
+#         if "schedule" in command:
+#             schedule_data = []  
+#             lines = command.split("\n") 
 
-@client.on(events.NewMessage(chats=GEOS_ID))
-async def handle_and_resend_messages(event):
-    message = event.message
-    # print(f"in chat of geos: {message.reply_to.reply_to_msg_id}")
-    print(f"Message: {message.text or '<Non-text content>'}")
-    # print(message)
-    try:
-        if message.reply_to_msg_id:
-            original_reply_message = await event.get_reply_message()
-            if "адам" == message.text:
-                working_text = original_reply_message.text
-                if "[СГЛЫПА]" in original_reply_message.text:
-                    working_text = working_text.replace("[СГЛЫПА]", "")
-                try:
-                    os.chdir("tts")
-                    result = subprocess.run(
-                        ["uv", "run", "text-to-speech.py", working_text],
-                        check=True,  # Raise an exception if the command fails
-                        text=True,   # Capture output as text
-                        capture_output=True  # Capture stdout and stderr
-                    )
-                    print("Script output:", result)
-                    voice = 'bebe.ogg'
-                    await client.send_file(
-                        GEOS_ID,
-                        file=voice,
-                        voice_note=True,
-                        reply_to=original_reply_message.id
-                    )
-                    
-                    os.chdir("..")
-                except subprocess.CalledProcessError as e:
-                    print("Error running script:", e.stderr)
-                return
-            if "[СГЛЫПА]" in original_reply_message.text:
-                await client.send_message(
-                PENIS_PENIS_ID, 
-                message,  
-                reply_to=original_reply_message.id - 1
-                )
-            else:
-                await client.send_message(
-                    PENIS_PENIS_ID, 
-                    message,  
-                    reply_to=original_reply_message.id + 1
-                )
-            print("Message forwarded as a reply successfully!")
-        else:
-            await client.send_message(PENIS_PENIS_ID, message)
-            print("Message forwarded successfully!")
-    except Exception as e:
-        print(f"Failed to forward message: {e}")
+#             for line in lines:
+#                 if not line.strip():
+#                     continue
+                
+#                 parts = line.split(", ")
+#                 if len(parts) != 3:
+#                     print(f"Invalid format in line: {line}")
+#                     continue
 
-@client.on(events.NewMessage(chats=PENIS_PENIS_ID))
-async def handle_message_sglipa(event):
-    message = event.message
-    # print(f"in chat of penis penis: {message.reply_to.reply_to_msg_id}")
-    # print("Message from sglipa")
-    if message.from_id.user_id == SGLIPA_ID:
-        
-        if message.text:
-            message.text = f"[СГЛЫПА] {message.text}"
-        try:
-            if event.message.media:
-                await client.forward_messages(GEOS_ID, event.message)
-            elif message.reply_to_msg_id:
-                original_reply_message = await event.get_reply_message()
-                await client.send_message(
-                    GEOS_ID, 
-                    message,  
-                    reply_to=original_reply_message.id - 1
-                )
-                print("Message forwarded as a reply successfully!")
-            else:
-                await client.send_message(GEOS_ID, message)
-                print("Message forwarded successfully!")
-        except Exception as e:
-            print(f"Failed to forward message: {e}")
+#                 day, sport, time = parts
+#                 schedule_data.append({
+#                     "day": day,
+#                     "sport": sport,
+#                     "time": time
+#                 })
 
-# Handle commands from me
-@client.on(events.NewMessage(chats=ME))
-async def handle_command(event):
-    message = event.message.text.strip()
-    if message.startswith("/"):
-        command = message[1:]
-        if command in commands:
-            try:
-                await commands[command]()
-            except Exception as e:
-                print(f"Error executing command '{command}': {e}")
-        else:
-            print(f"Unknown command: {command}")
+#             with open("schedule.json", "w") as file:
+#                 json.dump({"schedule": schedule_data}, file, indent=4) 
+#             schedule_sport()
+#             print("Schedule updated.")
+            
+#             return
+#         if command in commands:
+#             try:
+#                 await commands[command]()
+#             except Exception as e:
+#                 print(f"Error executing command '{command}': {e}")
+#         else:
+#             print(f"Unknown command: {command}")
 
 # Handle polls from badminton group
-@client.on(events.NewMessage(chats=BADM_ID))
-async def handle_group(event):
-    await handle_group_messages(event, client)
-
-async def notion():
-    sended_today = False
-    while True:
-        current_time = datetime.now()
-        if current_time.hour == 0 and sended_today:
-            sended_today = False
-        if current_time.hour == 8 and current_time.minute == 0 and not sended_today:
-            print("Sending reminder message...")
-            try:
-                await client.send_message(
-                    GEOS_ID, 
-                    "[НАПОМИНАЛКА] Новый месяц - продолжаем старый проект или открываем новый. Организуем сбор и открытие или занимаемся уже открытым."
-                )
-                print("Reminder message sent.")
-            except Exception as e:
-                print(f"Failed to send message: {e}")
-            sended_today = True
+# @client.on(events.NewMessage(chats=TO_HANDLED_GROUP_ID))
+# async def handle_group(event):
+#     await handle_group_messages(event, client)
 
 with client:
     print("Bot is running...")
     client.loop.run_until_complete(main())
     client.run_until_disconnected()
+    

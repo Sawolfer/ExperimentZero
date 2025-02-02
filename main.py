@@ -24,7 +24,6 @@ GEOS_ID = int(os.environ.get('GEOS_ID'))
 PENIS_PENIS_ID = int(os.environ.get('PENIS_PENIS_ID'))
 BADM_ID = int(os.environ.get('BADM_ID'))
 SGLIPA_ID = int(os.environ.get('SGLIPA_ID'))
-STRUGALNYA_ID = int(os.environ.get('STRUGALNYA'))
 SPORT_ID = int(os.environ.get('IU_SPORT'))
 
 client = TelegramClient(
@@ -42,7 +41,6 @@ ids = {
     "PENIS_PENIS": PENIS_PENIS_ID,
     "BADM": BADM_ID,
     "SGLIPA": SGLIPA_ID,
-    "STRUGALNYA": STRUGALNYA_ID,
     "SPORT": SPORT_ID
 }
 
@@ -58,6 +56,7 @@ async def main():
     print("Connecting to Telegram...")
     await client.start()
     print("Connected!")
+    await sport.sport_reg(client, SPORT_ID, "Sunday", "Hike club - Part 2", "13:00")
     schedule_sport()
     
     while True:

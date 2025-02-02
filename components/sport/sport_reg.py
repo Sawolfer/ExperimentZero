@@ -68,4 +68,3 @@ async def session_reg(client, chat_id, sport, time):
         print("end of session registration")
         return
 
-

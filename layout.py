@@ -2,6 +2,20 @@ import gradio
 import pandas as pd
 import json
 
+import schedule_sport
+
+client = None
+SPORT_ID = None
+
+def start_layout(pr_client, pr_SPORT_ID):
+    global client, SPORT_ID
+    client = pr_client
+    SPORT_ID = pr_SPORT_ID
+
+    demo.launch(
+        share=False,
+    )
+
 
 def personal_info(api_id, api_hash, phone_number):
     #TODO check that it does not rewrite the file
@@ -12,7 +26,7 @@ def personal_info(api_id, api_hash, phone_number):
     
     #TODO make the whole register system (with code from telegram)
     
-    return "Now you will receive a code, enter it please in the next window"
+    # return "Now you will receive a code, enter it please in the next window"
 
 def generate_schedule(number_sports):
     try:
@@ -37,6 +51,8 @@ def save_schedule(schedule):
         })
     with open("schedule.json", "w") as file:
         json.dump({"schedule": schedule_data}, file, indent=4)
+    print(SPORT_ID)
+    schedule_sport.schedule_sport(client=client, SPORT_ID=SPORT_ID)
     return f"Processing {len(schedule)} sports entries"
 
 def load_schedule():
@@ -55,10 +71,10 @@ with gradio.Blocks() as demo:
         phone_number = gradio.Textbox(label="phone_number")
         
         submit_button = gradio.Button("Submit")
-        submit_button.click(fn=personal_info, inputs=[api_id, api_hash, phone_number], outputs=[gradio.Textbox(label="output")])
+        submit_button.click(fn=personal_info, inputs=[api_id, api_hash, phone_number])
         
-        code_from_tg = gradio.Textbox(label="code")
-        submit_button_2 = gradio.Button("Submit")
+        # code_from_tg = gradio.Textbox(label="code")
+        # submit_button_2 = gradio.Button("Submit")
 
     with gradio.Tab("Schedule"):
         # descr_number = gradio.Markdown("Enter the number of sports you want to schedule")
@@ -80,8 +96,4 @@ with gradio.Blocks() as demo:
 
         submit_button_4 = gradio.Button("Submit Schedule")
         submit_button_4.click(fn=save_schedule, inputs=[schedule], outputs=[gradio.Textbox(label="Schedule Output")])
-
-demo.launch(
-    share=False
-)
 

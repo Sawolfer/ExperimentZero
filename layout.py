@@ -1,32 +1,97 @@
 import gradio
 import pandas as pd
 import json
+import subprocess
+import os
+from dotenv import load_dotenv
+from time import sleep
 
 import schedule_sport
 
-client = None
-SPORT_ID = None
+load_dotenv()
 
-def start_layout(pr_client, pr_SPORT_ID):
-    global client, SPORT_ID
-    client = pr_client
-    SPORT_ID = pr_SPORT_ID
+running_process = None
 
+def start_layout():
     demo.launch(
         share=False,
     )
 
+def get_data():
+    try:
+        api_id = os.environ.get('API_ID')
+        api_hash = os.environ.get('API_HASH')
+        phone_number = os.environ.get('PHONE_NUMBER')
+        password = os.environ.get('PASSWORD')
+    except KeyError:
+        return "", "", "", ""
+    return api_id, api_hash, phone_number, password
 
-def personal_info(api_id, api_hash, phone_number):
-    #TODO check that it does not rewrite the file
+def personal_info(api_id, api_hash, phone_number, password):
     with open(".env", "w") as f:
         f.write(f"API_ID='{api_id}'\n")
         f.write(f"API_HASH='{api_hash}'\n")
         f.write(f"PHONE_NUMBER='{phone_number}'\n")
+        f.write(f"PASSWORD='{password}'\n")
     
-    #TODO make the whole register system (with code from telegram)
+    registration_process(phone_number)
     
-    # return "Now you will receive a code, enter it please in the next window"
+    return "Now you will receive a code, enter it please in the next window"
+
+def registration_process (phone_number):
+    global running_process
+    
+    # Start tg_client
+    running_process = subprocess.Popen(
+        ["python", "tg_client.py", "--func", "initialize"],
+        stdin=subprocess.PIPE,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        text=True,
+        bufsize=1
+    )
+    
+    prompt_found = False
+    while True:
+        line = running_process.stdout.readline()
+        if not line:  # Process exited
+            break
+        print("Subprocess Output:", line.strip())  # Optional: log output
+        
+        # Check for the prompt (case-insensitive)
+        if "phone" in line.lower():
+            prompt_found = True
+            break
+    
+    if not prompt_found:
+        raise RuntimeError("Prompt 'enter your phone' not found!")
+    
+    # Send the phone number
+    print("Sending phone number:", phone_number)
+    running_process.stdin.write(f"{phone_number}\n")
+    running_process.stdin.flush()
+    
+    # Send phone number
+    # TODO check problem with inserting phone number
+    
+    print("Exit Code:", running_process.returncode)
+
+def send_ver_code (ver_code):
+    global running_process
+    
+    # Send verification code
+    running_process.stdin.write(f"{ver_code}\n")
+    running_process.stdin.flush()
+    
+    # Get password
+    password = os.environ.get('PASSWORD')
+    print(password)
+    
+    # Send password
+    running_process.stdin.write(f"{password}\n")
+    running_process.stdin.flush()
+    
+    return f"Registration completed"
 
 def generate_schedule(number_sports):
     try:
@@ -51,8 +116,8 @@ def save_schedule(schedule):
         })
     with open("schedule.json", "w") as file:
         json.dump({"schedule": schedule_data}, file, indent=4)
-    print(SPORT_ID)
-    schedule_sport.schedule_sport(client=client, SPORT_ID=SPORT_ID)
+    
+    schedule_sport.schedule_sport()
     return f"Processing {len(schedule)} sports entries"
 
 def load_schedule():
@@ -65,16 +130,20 @@ def load_schedule():
 
 with gradio.Blocks() as demo:
     gradio.Markdown("# Telegram Bot")
-    with gradio.Tab("Information"):
-        api_id = gradio.Textbox(label="api_id")
-        api_hash = gradio.Textbox(label="api_hash")
-        phone_number = gradio.Textbox(label="phone_number")
+    # with gradio.Tab("Information"):
+    #     gradio.Markdown("Enter your personal information")
+    #     api_id, api_hash, phone_number, password = get_data()
+    #     api_id = gradio.Textbox(label="api_id", value=api_id)
+    #     api_hash = gradio.Textbox(label="api_hash", value=api_hash)
+    #     phone_number = gradio.Textbox(label="phone_number", value=phone_number)
+    #     password = gradio.Textbox(label="password", value=password)
         
-        submit_button = gradio.Button("Submit")
-        submit_button.click(fn=personal_info, inputs=[api_id, api_hash, phone_number])
+    #     submit_button = gradio.Button("Submit")
+    #     submit_button.click(fn=personal_info, inputs=[api_id, api_hash, phone_number, password], outputs=[gradio.Markdown()])
         
-        # code_from_tg = gradio.Textbox(label="code")
-        # submit_button_2 = gradio.Button("Submit")
+    #     code_from_tg = gradio.Textbox(label="code")
+    #     submit_button_2 = gradio.Button("Submit")
+    #     submit_button_2.click(fn=send_ver_code, inputs=[code_from_tg], outputs=[gradio.Markdown()])
 
     with gradio.Tab("Schedule"):
         # descr_number = gradio.Markdown("Enter the number of sports you want to schedule")

@@ -5,6 +5,7 @@ import subprocess
 import os
 from dotenv import load_dotenv
 from time import sleep
+import asyncio
 
 import schedule_sport
 
@@ -12,7 +13,7 @@ load_dotenv()
 
 running_process = None
 
-def start_layout():
+async def start_layout():
     demo.launch(
         share=False,
     )
@@ -70,9 +71,6 @@ def registration_process (phone_number):
     print("Sending phone number:", phone_number)
     running_process.stdin.write(f"{phone_number}\n")
     running_process.stdin.flush()
-    
-    # Send phone number
-    # TODO check problem with inserting phone number
     
     print("Exit Code:", running_process.returncode)
 

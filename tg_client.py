@@ -43,9 +43,10 @@ async def telegram_main():
         await asyncio.sleep(1)
 
 async def initialize():
-    with client:
-        # print("Bot is running...")
-        client.loop.run_until_complete(telegram_main())
+    async with client:
+        print("Bot is running...")
+        # client.loop.run_until_complete(telegram_main())
+        await telegram_main()
         client.run_until_disconnected()
 
 def get_client():

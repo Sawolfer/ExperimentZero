@@ -2,15 +2,24 @@ from telethon.tl.types import KeyboardButtonCallback
 from telethon.tl.functions.messages import GetBotCallbackAnswerRequest
 from time import sleep
 
+from tg_client import get_client
 
 prev_button = None
 
-async def sport_reg(client, chat_id, day, sport, time):
+async def sport_reg(chat_id, day, sport, time):
+    client = get_client()
     print("start sport registration")
     last_message = await client.get_messages(chat_id, limit=1)
     last_message = last_message[0]
+    if last_message.reply_markup is None:
+        try: 
+            client.send_message(chat_id, "/start")
+        except Exception as e:
+            print(f"Error: {e}")
+        last_message = await client.get_messages(chat_id, limit=1)
+        last_message = last_message[0]
     message_buttons_rows = last_message.reply_markup.rows.copy()
-    message_buttons_rows = message_buttons_rows[:-1]
+    message_buttons_rows = message_buttons_rows
     for row in message_buttons_rows:
         for button in row.buttons:
             if "All classes" in button.text:
@@ -42,7 +51,7 @@ async def day_chooser(client, chat_id, day, sport, time):
                     ))
                 print("Result of callback:", result)
                 await session_reg(client, chat_id, sport, time)
-                
+            return
 async def session_reg(client, chat_id, sport, time):
     # sleep(0.1)
     print("start session registration")

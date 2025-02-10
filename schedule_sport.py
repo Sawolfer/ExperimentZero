@@ -10,7 +10,7 @@ with open("schedule.json", "r") as file:
     schedule_data = json.load(file)
 
 def schedule_sport():
-    SPORT_ID = int(6343627526)
+    SPORT_ID = 6343627526
     schedule.clear()
     for entry in schedule_data["schedule"]:
         day = entry["day"]

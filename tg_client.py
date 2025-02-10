@@ -10,39 +10,39 @@ from components.sport import sport_reg as sport
 import schedule_sport
 
 
-load_dotenv() 
+load_dotenv()
 
-API_ID = os.environ.get('API_ID')
-API_HASH = os.environ.get('API_HASH')
-PHONE_NUMBER = os.environ.get('PHONE_NUMBER')
-PASSWORD = os.environ.get('PASSWORD')
-
-client = TelegramClient(
-    'session.exp0.v1.light',
-    int(API_ID),
-    API_HASH,
-    # device_model="iPhone 5s", 
-    system_version="4.16.30-vxExpZero",)
 
 async def telegram_main():
+    
     print("Connecting to Telegram...")
     await client.start()
     print("Connected!")
     
-    # await get_ids()
+    SPORT_ID = 6343627526
     
-    # ME = int(os.environ.get('ME'))
-    SPORT_ID = 6444735563
-    
-    # await sport.sport_reg(client, SPORT_ID, "Monday", "Boxing", "19:30")
     schedule_sport.schedule_sport()
     
     while True:
-        loop = asyncio.get_running_loop()
-        await loop.run_in_executor(None, schedule.run_pending)
+        schedule.run_pending()
         await asyncio.sleep(1)
 
+client = None
+
 async def initialize():
+    global client
+    
+    API_ID = os.environ.get('API_ID')
+    API_HASH = os.environ.get('API_HASH')
+    
+    client = TelegramClient(
+        'session.exp0.v1.light',
+        int(API_ID),
+        API_HASH,
+        # device_model="iPhone 5s", 
+        system_version="4.16.30-vxExpZero",
+    )
+    
     async with client:
         print("Bot is running...")
         # client.loop.run_until_complete(telegram_main())

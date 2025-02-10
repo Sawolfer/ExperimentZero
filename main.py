@@ -4,11 +4,16 @@ from layout import start_layout
 import tg_client
 import asyncio
 
+import schedule_sport
+
 load_dotenv()
 
 async def tg_client_initialize():
     print("Initializing Telegram client...")
     await tg_client.initialize()
+
+def get_loop():
+    return asyncio.get_running_loop()
 
 async def start_layout_initialize():
     print("Starting layout...")
@@ -32,11 +37,9 @@ async def main():
     
     await tg_client.initialize()
     # tg_client_task = asyncio.create_task(tg_client_initialize())
-    # start_layout_task = asyncio.create_task(start_layout_initialize())
+    # layout_task = asyncio.create_task(start_layout_initialize())
     
-    # await asyncio.gather(tg_client_task, start_layout_task)
-    # start_layout()
-    # print("Bot is running...")
+    # await asyncio.gather(tg_client_task, layout_task) 
 
 
 if __name__ == "__main__":

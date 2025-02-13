@@ -7,7 +7,7 @@ import argparse
 
 
 from components.sport import sport_reg as sport
-import schedule_sport
+from components import schedule_sport
 
 
 load_dotenv()

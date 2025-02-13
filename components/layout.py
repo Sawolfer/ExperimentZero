@@ -7,7 +7,7 @@ from dotenv import load_dotenv
 from time import sleep
 import asyncio
 
-import schedule_sport
+from components import schedule_sport
 
 load_dotenv()
 
@@ -164,3 +164,4 @@ with gradio.Blocks() as demo:
         submit_button_4 = gradio.Button("Submit Schedule")
         submit_button_4.click(fn=save_schedule, inputs=[schedule], outputs=[gradio.Textbox(label="Schedule Output")])
 
+# asyncio.run(start_layout())

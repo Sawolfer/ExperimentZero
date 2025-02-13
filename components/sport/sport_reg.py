@@ -2,33 +2,22 @@ from telethon.tl.types import KeyboardButtonCallback
 from telethon.tl.functions.messages import GetBotCallbackAnswerRequest
 from time import sleep
 
-
 prev_button = None
 
-async def get_last_message(client, chat_id):
+async def sport_reg(client, chat_id, day, sport, time):
+    # print(f"Chat id in sport registration{chat_id}")
+    print("start sport registration")
     last_message = await client.get_messages(chat_id, limit=1)
     last_message = last_message[0]
-    return last_message
-
-async def get_buttons_rows(client, SPORT_ID):
-    message = await get_last_message(client=client, chat_id=SPORT_ID)
-    if message.reply_markup is None:
-        try:
-            await client.send_message(
-                    SPORT_ID, 
-                    message = "/start"
-                )
-            message = await get_last_message(client=client, chat_id=SPORT_ID)
+    if last_message.reply_markup is None:
+        try: 
+            client.send_message(chat_id, "/start")
         except Exception as e:
-            print(f"Failed to send message: {e}")
-    message_buttons_rows = message.reply_markup.rows.copy()
-    return message_buttons_rows
-
-async def sport_reg(client, chat_id, day, sport, time):
-    print("start sport registration")
-    last_message = await get_last_message(client, chat_id)
-    message_buttons_rows = await get_buttons_rows(client, chat_id)
-    message_buttons_rows = message_buttons_rows[:-1]
+            print(f"Error: {e}")
+        last_message = await client.get_messages(chat_id, limit=1)
+        last_message = last_message[0]
+    message_buttons_rows = last_message.reply_markup.rows.copy()
+    message_buttons_rows = message_buttons_rows
     for row in message_buttons_rows:
         for button in row.buttons:
             if "All classes" in button.text:
@@ -43,13 +32,26 @@ async def sport_reg(client, chat_id, day, sport, time):
 
 async def day_chooser(client, chat_id, day, sport, time):
     # sleep(0.1)
+    # print(f"Chat id in sport day chooser registration{chat_id}")
+    
+    days = {
+        "Monday": "Понедельник",
+        "Tuesday": "Вторник",
+        "Wednesday": "Среда",
+        "Thursday": "Четверг",
+        "Friday": "Пятница",
+        "Saturday": "Суббота",
+        "Sunday": "Воскресенье"
+    }
+
     print("start day choosing")
-    last_message = await get_last_message(client, chat_id)
-    message_buttons_rows = await get_buttons_rows(client, chat_id)
-    for row in message_buttons_rows:
+    last_message = await client.get_messages(chat_id, limit=1)
+    last_message = last_message[0]
+    message_buttons_rows = last_message.reply_markup.rows.copy()
+    for row in message_buttons_rows[::-1]:
         for button in row.buttons:
-            # print(f"button: {button.text}")
-            if day in button.text:
+            print(f"button: {button.text}")
+            if day in button.text or days[day] in button.text:
                 print(f"the day: {button.text}, is selected")
                 result = await client(GetBotCallbackAnswerRequest(
                         peer=chat_id,
@@ -58,16 +60,19 @@ async def day_chooser(client, chat_id, day, sport, time):
                     ))
                 print("Result of callback:", result)
                 await session_reg(client, chat_id, sport, time)
-                
+                return
 async def session_reg(client, chat_id, sport, time):
-    # sleep(0.1)
+
     print("start session registration")
-    last_message = await get_last_message(client, chat_id)
-    message_buttons_rows = await get_buttons_rows(client, chat_id)
+    last_message = await client.get_messages(chat_id, limit=1)
+    last_message = last_message[0]
+    message_buttons_rows = last_message.reply_markup.rows
     for row in message_buttons_rows:
         for button in row.buttons:
             # print(f"for {sport} and button {button.text}: {button.text==sport}")
             if button.text == sport and time in prev_button.text:
+                if "🟢" in prev_button.text:
+                    return "i've already registered"
                 print(f"sesion: {button.text}, time: {time}")
                 try: 
                     result = await client(GetBotCallbackAnswerRequest(
@@ -82,3 +87,5 @@ async def session_reg(client, chat_id, sport, time):
     if row == message_buttons_rows[-1]:
         print("end of session registration")
         return
+
+

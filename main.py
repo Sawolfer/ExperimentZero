@@ -53,7 +53,7 @@ async def main():
     print("Connecting to Telegram...")
     await client.start()
     print("Connected!")
-    await sport.sport_reg(client, SPORT_ID, "Sunday", "Hike club - Part 2", "13:00")
+    # await sport.sport_reg(client, SPORT_ID, "Sunday", "Hike club - Part 2", "13:00")
     schedule_sport()
     
     while True:

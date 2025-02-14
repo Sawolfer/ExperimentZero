@@ -7,7 +7,7 @@ from dotenv import load_dotenv
 from time import sleep
 import asyncio
 
-import schedule_sport
+from components import schedule_sport
 
 load_dotenv()
 
@@ -15,6 +15,7 @@ running_process = None
 
 async def start_layout():
     demo.launch(
+        blocked_paths=False,
         share=False,
     )
 
@@ -66,6 +67,8 @@ def registration_process (phone_number):
     
     if not prompt_found:
         raise RuntimeError("Prompt 'enter your phone' not found!")
+    
+    # TODO fix subprocess problems
     
     # Send the phone number
     print("Sending phone number:", phone_number)
@@ -164,3 +167,4 @@ with gradio.Blocks() as demo:
         submit_button_4 = gradio.Button("Submit Schedule")
         submit_button_4.click(fn=save_schedule, inputs=[schedule], outputs=[gradio.Textbox(label="Schedule Output")])
 
+# asyncio.run(start_layout())

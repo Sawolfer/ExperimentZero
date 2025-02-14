@@ -2,7 +2,7 @@ from telethon.tl.types import KeyboardButtonCallback
 from telethon.tl.functions.messages import GetBotCallbackAnswerRequest
 from time import sleep
 
-from tg_client import get_client
+from components.tg_client import get_client
 
 prev_button = None
 

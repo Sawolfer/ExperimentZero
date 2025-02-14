@@ -1,10 +1,10 @@
 import os
 from dotenv import load_dotenv
-from layout import start_layout
-import tg_client
+from components.layout import start_layout
+from components import tg_client
 import asyncio
 
-import schedule_sport
+from components import schedule_sport
 
 load_dotenv()
 
@@ -36,6 +36,8 @@ async def main():
             env_file.write(f"API_HASH='{api_hash}'\n")
     
     await tg_client.initialize()
+    # TODO make initialization tg_client from layout
+    # start_layout()
     # tg_client_task = asyncio.create_task(tg_client_initialize())
     # layout_task = asyncio.create_task(start_layout_initialize())
     
@@ -43,4 +45,6 @@ async def main():
 
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+    loop.run_until_complete(main())

@@ -1,9 +1,9 @@
 {
     "schedule": [
         {
-            "day": "Sunday",
+            "day": "Thursday",
             "sport": "Badminton",
-            "time": "18:00"
+            "time": "20:00"
         },
         {
             "day": "Saturday",
@@ -11,9 +11,9 @@
             "time": "19:00"
         },
         {
-            "day": "Thursday",
+            "day": "Sunday",
             "sport": "Badminton",
-            "time": "20:00"
+            "time": "18:00"
         }
     ]
 }

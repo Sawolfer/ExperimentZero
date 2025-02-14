@@ -36,6 +36,8 @@ async def main():
             env_file.write(f"API_HASH='{api_hash}'\n")
     
     await tg_client.initialize()
+    # TODO make initialization tg_client from layout
+    # start_layout()
     # tg_client_task = asyncio.create_task(tg_client_initialize())
     # layout_task = asyncio.create_task(start_layout_initialize())
     

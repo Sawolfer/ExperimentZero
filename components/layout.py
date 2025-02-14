@@ -15,6 +15,7 @@ running_process = None
 
 async def start_layout():
     demo.launch(
+        blocked_paths=False,
         share=False,
     )
 
@@ -66,6 +67,8 @@ def registration_process (phone_number):
     
     if not prompt_found:
         raise RuntimeError("Prompt 'enter your phone' not found!")
+    
+    # TODO fix subprocess problems
     
     # Send the phone number
     print("Sending phone number:", phone_number)

@@ -1,4 +1,4 @@
-from telethon import TelegramClient
+from telethon import TelegramClient, events
 import os
 from dotenv import load_dotenv
 import schedule
@@ -8,10 +8,12 @@ import argparse
 
 from components.sport import sport_reg as sport
 from components import schedule_sport
+from components.commands import manager
 
 
 load_dotenv()
 
+USER = None
 
 async def telegram_main():
     
@@ -20,8 +22,12 @@ async def telegram_main():
     print("Connected!")
     
     SPORT_ID = 6343627526
-    
+    await find_my()
+
     schedule_sport.schedule_sport()
+    
+    client.add_event_handler(handle_message, events.NewMessage(from_users=USER))
+
     
     while True:
         schedule.run_pending()
@@ -52,6 +58,12 @@ async def initialize():
 def get_client():
     return client
 
+async def find_my():
+    global USER 
+    user = await client.get_me()
+    print(f"User ID: {user.id}")
+    USER = user.id
+
 # initialize()
 
 if __name__ == "__main__":
@@ -63,3 +75,10 @@ if __name__ == "__main__":
         initialize()
     else:
         print(f"Unknown function: {args.func}")
+
+async def handle_message(event):
+    print(f"Received message: {event.message.text}")
+    commands = manager.get_list_of_commands()
+    
+    if event.message.text.startswith("/") and event.message.text.split("\n")[0][1:] in commands:
+        await manager.manager(client, USER, event.message.text)

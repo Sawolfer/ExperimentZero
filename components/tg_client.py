@@ -5,8 +5,6 @@ import schedule
 import asyncio
 import argparse
 
-
-from components.sport import sport_reg as sport
 from components import schedule_sport
 from components.commands import manager
 
@@ -24,7 +22,7 @@ async def telegram_main():
     SPORT_ID = 6343627526
     await find_my()
 
-    schedule_sport.schedule_sport()
+    schedule_sport.schedule_sport(client)
     
     client.add_event_handler(handle_message, events.NewMessage(from_users=USER))
 

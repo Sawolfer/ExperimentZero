@@ -1,14 +1,10 @@
 from telethon.tl.types import KeyboardButtonCallback
 from telethon.tl.functions.messages import GetBotCallbackAnswerRequest
-from time import sleep
-
-from components.tg_client import get_client
 
 prev_button = None
 
-async def sport_reg(chat_id, day, sport, time):
+async def sport_reg(client, chat_id, day, sport, time):
     # print(f"Chat id in sport registration{chat_id}")
-    client = get_client()
     print("start sport registration")
     last_message = await client.get_messages(chat_id, limit=1)
     last_message = last_message[0]

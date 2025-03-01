@@ -9,7 +9,7 @@ from components.sport import sport_reg
 with open("schedule.json", "r") as file:
     schedule_data = json.load(file)
 
-def schedule_sport():
+def schedule_sport(client):
     SPORT_ID = 6343627526
     schedule.clear()
     for entry in schedule_data["schedule"]:
@@ -40,7 +40,7 @@ def schedule_sport():
         
         valid_days[day.lower()].at(time_str).do(
             lambda d=day, s=sport_name, t=time_str: asyncio.create_task(
-                sport_reg.sport_reg(SPORT_ID, d, s, t)
+                sport_reg.sport_reg(client, SPORT_ID, d, s, t)
             )
         )
     print(schedule.get_jobs())

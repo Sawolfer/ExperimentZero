@@ -10,7 +10,7 @@ async def manager(client, chat_id, message):
     if "/schedule" in message:
         print("schedule")
         message = message.replace("/schedule", "")
-        new_schedule = command_schedule.change_schedule(message)
+        new_schedule = command_schedule.change_schedule(client, message)
         await send_message(client, chat_id, new_schedule)
     elif "/info" in message:
         print("info")

@@ -1,10 +1,10 @@
 import os
 from dotenv import load_dotenv
-from components.layout import start_layout
+# from components.layout import start_layout
 from components import tg_client
 import asyncio
 
-from components import schedule_sport
+# from components import schedule_sport
 
 load_dotenv()
 
@@ -15,9 +15,9 @@ async def tg_client_initialize():
 def get_loop():
     return asyncio.get_running_loop()
 
-async def start_layout_initialize():
-    print("Starting layout...")
-    await start_layout()
+# async def start_layout_initialize():
+#     print("Starting layout...")
+#     await start_layout()
 
 async def main():
     print("Start")

@@ -13,7 +13,7 @@ valid_days = [
     "Sunday"
 ]
 
-def change_schedule(message):
+def change_schedule(client, message):
     rows = [line.split(", ") for line in message.strip().split("\n") if line]
 
     schedule_df = pd.DataFrame(rows, columns=["Day", "Sport", "Time"])
@@ -37,6 +37,6 @@ def change_schedule(message):
     with open("schedule.json", "w") as file:
         json.dump({"schedule": schedule_data}, file, indent=4)
     
-    schedule_sport.schedule_sport()
+    schedule_sport.schedule_sport(client)
     schedule_df = pd.DataFrame(schedule_df, columns=["Day", "Sport", "Time"])
     return f"the new schedule is:\n  {schedule_df}"

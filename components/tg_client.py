@@ -34,6 +34,7 @@ async def telegram_main():
 client = None
 
 async def initialize():
+    print("Initializing Telegram client...")
     global client
     
     API_ID = os.environ.get('API_ID')

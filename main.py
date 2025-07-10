@@ -1,5 +1,5 @@
 import os
-from dotenv import load_dotenv
+from dotenv import load_dotenv, dotenv_values, set_key, unset_key
 # from components.layout import start_layout
 from components import tg_client
 import asyncio
@@ -21,9 +21,13 @@ def get_loop():
 
 async def main():
     print("Start")
+    for key in dotenv_values().keys():
+        unset_key(".env", key) 
+
     try :
         API_ID = os.environ.get('API_ID')
         API_HASH = os.environ.get('API_HASH')
+        print(f"API_ID: {API_ID}, API_HASH: {API_HASH}")
     except Exception as e:
         print(f"error {e}")
     if API_ID is None:
